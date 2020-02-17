@@ -8,12 +8,12 @@
 		<version>2.1.8.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.keycorp</groupId>
-	<artifactId>keycorp</artifactId>
+	<groupId>com.fin.family</groupId>
+	<artifactId>fin-family</artifactId>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>keycorp</name>
-	<description>GF KeyCorp</description>
+	<name>fin-family</name>
+	<description>GF FinFamily</description>
 
 	<properties>
 		<java.version>1.8</java.version>
