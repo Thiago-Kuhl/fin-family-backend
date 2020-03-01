@@ -1,8 +1,8 @@
 package com.finfamily.controller;
 
+import com.finfamily.domain.Users;
 import com.finfamily.security.Encrypt;
-import com.finfamily.domain.TodosUsuarios;
-import com.finfamily.domain.Usuario;
+import com.finfamily.domain.AllUsers;
 import com.finfamily.domain.Password;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,36 +13,36 @@ import java.time.LocalDateTime;
 @RestController
 public class UsuariosController {
 
-    private TodosUsuarios todosUsuarios;
+    private AllUsers allUsers;
     private Encrypt hashpwd = new Encrypt();
     LocalDateTime now = LocalDateTime.now();
-    Password password = new com.finfamily.domain.Password();
 
     @Autowired
-    public UsuariosController(TodosUsuarios todosUsuarios) {
-        this.todosUsuarios = todosUsuarios;
+    public UsuariosController(AllUsers allUsers) {
+        this.allUsers = allUsers;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> addUser(@RequestBody Usuario usuario) {
-        if(todosUsuarios.verificarExistencia(usuario.getEmail(), usuario.getCpf()) != null){
-            System.out.println(usuario.getSenha());
-            usuario.setSenha(hashpwd.customPasswordEncoder().encode(usuario.getSenha()));
-            System.out.println(usuario.getSenha());
-            todosUsuarios.save(usuario);
-            return ResponseEntity.status(HttpStatus.OK).body("Usuário criado com sucesso!");
+    public ResponseEntity<String> addUser(@RequestBody Users user) {
+        if(allUsers.verificarExistencia(user.getEmail(), user.getCpf()) != null){
+            System.out.println(user.getPassword());
+            user.setPassword(hashpwd.customPasswordEncoder().encode(user.getPassword()));
+            System.out.println(user.getPassword());
+            user.setCreated_at(now);
+            allUsers.save(user);
+            return ResponseEntity.status(HttpStatus.OK).body("User successfully created!");
         }
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Email e/ou cpf já cadastrados!");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Email and/or cpf already registred!");
 
     }
 
     @PutMapping("/update/user/")
-    public ResponseEntity<String> updateRegistrationData(@RequestBody Usuario user){
-        if(todosUsuarios.findById(user.getIdUsuario()) != null){
+    public ResponseEntity<String> updateRegistrationData(@RequestBody Users user){
+        if(allUsers.findById(user.getId()) != null){
 
-            user.setSenha(todosUsuarios.getBasePasswd(user.getIdUsuario()));
-            user.setDataAtualizacao(now);
-            todosUsuarios.save(user);
+            user.setPassword(allUsers.getBasePasswd(user.getId()));
+            user.setUpdated_at(now);
+            allUsers.save(user);
             return ResponseEntity.status(HttpStatus.OK).body("Dados alterados com sucesso!");
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Usuário não encontrado!");
@@ -50,14 +50,14 @@ public class UsuariosController {
 
     @PutMapping("/update/user/password")
     public ResponseEntity<String> updateUserPassword(@RequestBody Password password){
-        Usuario user;
-        if(todosUsuarios.findById(password.getIdUsuario()) != null){
-            if(hashpwd.customPasswordEncoder().matches(password.getBasePassword(), todosUsuarios.getBasePasswd(password.getIdUsuario()))){
-                user = todosUsuarios.getUserById(password.getIdUsuario());
+        Users user;
+        if(allUsers.findById(password.getIdUsuario()) != null){
+            if(hashpwd.customPasswordEncoder().matches(password.getBasePassword(), allUsers.getBasePasswd(password.getIdUsuario()))){
+                user = allUsers.getUserById(password.getIdUsuario());
 
-                user.setSenha(hashpwd.customPasswordEncoder().encode(password.getNewPassword()));
-                user.setDataAtualizacao(now);
-                todosUsuarios.save(user);
+                user.setPassword(hashpwd.customPasswordEncoder().encode(password.getNewPassword()));
+                user.setUpdated_at(now);
+                allUsers.save(user);
 
                 return ResponseEntity.status(HttpStatus.OK).body("Senha alterada com sucesso!");
             }
@@ -70,8 +70,8 @@ public class UsuariosController {
 
     @DeleteMapping("/remove/user")
     public ResponseEntity<String> removeUser(@RequestBody int idUsuario) {
-        if(todosUsuarios.findById(idUsuario) != null){
-            todosUsuarios.deleteById(idUsuario);
+        if(allUsers.findById(idUsuario) != null){
+            allUsers.deleteById(idUsuario);
             return ResponseEntity.status(HttpStatus.OK).body("Usuário removido com sucesso!");
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Usuário informado não encontrado!");
@@ -79,8 +79,8 @@ public class UsuariosController {
 
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody Usuario user){
-        if(todosUsuarios.buscarUsando(user.getEmail()) != null){
+    public ResponseEntity<String> resetPassword(@RequestBody Users user){
+        if(allUsers.buscarUsando(user.getEmail()) != null){
             return ResponseEntity.status(HttpStatus.OK).body("Usuário encontrado!");
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

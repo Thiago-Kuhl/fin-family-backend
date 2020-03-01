@@ -1,9 +1,9 @@
 package com.finfamily.controller;
 
+import com.finfamily.domain.Users;
 import com.finfamily.security.Encrypt;
 import com.finfamily.domain.LogGenerator;
-import com.finfamily.domain.TodosUsuarios;
-import com.finfamily.domain.Usuario;
+import com.finfamily.domain.AllUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +13,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-@CrossOrigin
 @RestController
 public class LoginController {
 
-    private TodosUsuarios todosUsuarios;
+    private AllUsers allUsers;
     private Encrypt hashpwd = new Encrypt();
     private LogGenerator logGenerator = new LogGenerator();
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -25,30 +24,30 @@ public class LoginController {
 
 
     @Autowired
-    public LoginController(TodosUsuarios todosUsuarios)	{
-        this.todosUsuarios = todosUsuarios;
+    public LoginController(AllUsers allUsers)	{
+        this.allUsers = allUsers;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Usuario> validarLogin(@RequestBody Usuario usuario) throws IOException {
-        Usuario user = todosUsuarios.buscarUsando(usuario.getEmail());
-        if(todosUsuarios.buscarUsando(usuario.getEmail()) != null){
-            if(hashpwd.customPasswordEncoder().matches(usuario.getSenha(), todosUsuarios.getPasswd(usuario.getEmail()))) {
+    public ResponseEntity<Users> validarLogin(@RequestBody Users users) throws IOException {
+        Users user = allUsers.buscarUsando(users.getEmail());
+        if(allUsers.buscarUsando(users.getEmail()) != null){
+            if(hashpwd.customPasswordEncoder().matches(users.getPassword(), allUsers.getPasswd(users.getEmail()))) {
 
-                logGenerator.AcessLog(usuario.getEmail(), dtf.format(now), true);
+                logGenerator.AcessLog(users.getEmail(), dtf.format(now), true);
 
                 return ResponseEntity.status(HttpStatus.OK).body(user);
             }
             else {
 
-                logGenerator.AcessLog(usuario.getEmail(), dtf.format(now), false);
+                logGenerator.AcessLog(users.getEmail(), dtf.format(now), false);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         }
         else {
 
-            logGenerator.AcessLog(usuario.getEmail(), dtf.format(now), false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            logGenerator.AcessLog(users.getEmail(), dtf.format(now), false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

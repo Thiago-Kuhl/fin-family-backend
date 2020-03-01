@@ -2,18 +2,18 @@ package com.finfamily.domain;
 
 
 public class Password {
-    private int idUsuario;
+    private int id;
 
     private String basePassword;
 
     private String newPassword;
 
     public int getIdUsuario() {
-        return idUsuario;
+        return id;
     }
 
     public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
+        this.id = idUsuario;
     }
 
     public String getBasePassword() {
