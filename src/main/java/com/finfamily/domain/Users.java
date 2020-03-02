@@ -42,6 +42,10 @@ public class Users {
     @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupParticipants> groupParticipants;
 
+    @OneToOne(mappedBy = "users", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private PersonalWallet personalWallet;
+
     public Users(int id, String full_name, String cpf, Date birthday, String phone_area_code, String phone_area_number,
                  String email , String password, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;

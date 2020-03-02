@@ -18,6 +18,10 @@ public class Groups {
     @OneToMany(mappedBy = "groups", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupParticipants> groupParticipants;
 
+    @OneToOne(mappedBy = "groups", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private GroupWallet groupWallet;
+
     public Groups (int id, String groupName){
         this.id = id;
         this.groupName = groupName;

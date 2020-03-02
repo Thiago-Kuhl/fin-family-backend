@@ -1,6 +1,7 @@
 package com.finfamily.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "expense_category")
@@ -13,6 +14,14 @@ public class ExpenseCategory {
     private String name;
 
     private String type;
+
+    @OneToMany(mappedBy = "expenseCategory", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<PersonalWallet> personalWallets;
+
+    @OneToMany(mappedBy = "expenseCategory", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<GroupWallet> groupWallets;
 
     public ExpenseCategory (int id, String name, String type) {
         this.id = id;

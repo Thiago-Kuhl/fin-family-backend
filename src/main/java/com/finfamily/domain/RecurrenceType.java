@@ -1,6 +1,7 @@
 package com.finfamily.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "recurrence_type")
@@ -11,6 +12,15 @@ public class RecurrenceType {
     private int id;
 
     private String name;
+
+    @OneToMany(mappedBy = "recurrenceType", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<PersonalWallet> personalWallets;
+
+    @OneToMany(mappedBy = "recurrenceType", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<GroupWallet> groupWallets;
+
 
     public RecurrenceType (int id, String name) {
         this.id = id;

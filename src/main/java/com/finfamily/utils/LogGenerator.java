@@ -1,4 +1,4 @@
-package com.finfamily.domain;
+package com.finfamily.utils;
 
 import java.io.*;
 

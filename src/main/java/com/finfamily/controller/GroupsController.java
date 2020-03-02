@@ -1,7 +1,6 @@
 package com.finfamily.controller;
 
-import com.finfamily.domain.AllGroups;
-import com.finfamily.domain.AllUsers;
+import com.finfamily.repository.AllGroups;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 

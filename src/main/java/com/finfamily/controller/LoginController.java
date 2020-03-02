@@ -2,8 +2,8 @@ package com.finfamily.controller;
 
 import com.finfamily.domain.Users;
 import com.finfamily.security.Encrypt;
-import com.finfamily.domain.LogGenerator;
-import com.finfamily.domain.AllUsers;
+import com.finfamily.utils.LogGenerator;
+import com.finfamily.repository.AllUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,6 @@
-package com.finfamily.domain;
+package com.finfamily.repository;
 
+import com.finfamily.domain.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
