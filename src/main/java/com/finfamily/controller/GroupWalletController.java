@@ -1,6 +1,6 @@
 package com.finfamily.controller;
 
-import com.finfamily.repository.AllGroups;
+import com.finfamily.repository.AllGroupWallet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,16 +8,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-public class GroupsController {
+public class GroupWalletController {
 
-    private AllGroups allGroups;
+    private AllGroupWallet allGroupWallet;
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private LocalDateTime now = LocalDateTime.now();
 
     @Autowired
-    public GroupsController(AllGroups allGroups)	{
-        this.allGroups = allGroups;
-    }
-
+    GroupWalletController(AllGroupWallet allGroupWallet){this.allGroupWallet = allGroupWallet;}
 
 }
