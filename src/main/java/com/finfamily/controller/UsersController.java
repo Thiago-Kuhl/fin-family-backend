@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-public class UsuariosController {
+public class UsersController {
 
     private AllUsers allUsers;
     private Encrypt hashpwd = new Encrypt();
     LocalDateTime now = LocalDateTime.now();
 
     @Autowired
-    public UsuariosController(AllUsers allUsers) {
+    public UsersController(AllUsers allUsers) {
         this.allUsers = allUsers;
     }
 

@@ -1,6 +1,7 @@
 package com.finfamily.controller;
 
-import com.finfamily.repository.AllGroups;
+import com.finfamily.domain.ReceipeCategory;
+import com.finfamily.repository.AllReceipeCategories;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,16 +9,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-public class GroupsController {
+public class ReceipeCategoryController {
 
-    private AllGroups allGroups;
+    private AllReceipeCategories allReceipeCategories;
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private LocalDateTime now = LocalDateTime.now();
 
     @Autowired
-    public GroupsController(AllGroups allGroups)	{
-        this.allGroups = allGroups;
-    }
-
+    ReceipeCategoryController(AllReceipeCategories allReceipeCategories){this.allReceipeCategories = allReceipeCategories;}
 
 }
