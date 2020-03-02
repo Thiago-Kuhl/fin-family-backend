@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Set;
 
 
 @Entity
@@ -37,6 +38,9 @@ public class Users {
     private LocalDateTime created_at;
 
     private LocalDateTime updated_at;
+
+    @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<GroupParticipants> groupParticipants;
 
     public Users(int id, String full_name, String cpf, Date birthday, String phone_area_code, String phone_area_number,
                  String email , String password, LocalDateTime created_at, LocalDateTime updated_at) {

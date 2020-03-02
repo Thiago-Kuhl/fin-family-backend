@@ -1,6 +1,7 @@
 package com.finfamily.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Embeddable
@@ -13,6 +14,9 @@ public class Groups {
 
     @Column(name = "group_name")
     private String groupName;
+
+    @OneToMany(mappedBy = "groups", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<GroupParticipants> groupParticipants;
 
     public Groups (int id, String groupName){
         this.id = id;
