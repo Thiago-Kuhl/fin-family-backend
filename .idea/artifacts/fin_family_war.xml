@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="fin-family:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>fin-family</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="fin-family-2.1.8.RELEASE.war">
+      <element id="artifact" artifact-name="fin-family:war exploded" />
+    </root>
+  </artifact>
+</component>

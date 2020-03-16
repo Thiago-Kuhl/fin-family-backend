@@ -8,7 +8,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 
 @SpringBootApplication
-public class FinFamilyApplication {
+public class FinFamilyApplication extends SpringBootServletInitializer{
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(FinFamilyApplication.class);
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(FinFamilyApplication.class, args);
     }

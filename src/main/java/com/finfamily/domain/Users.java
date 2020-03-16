@@ -1,9 +1,12 @@
 package com.finfamily.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import springfox.documentation.annotations.ApiIgnore;
 
 
 import javax.persistence.*;
@@ -19,9 +22,12 @@ public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden=true)
     private int id;
 
     private String full_name;
+
+    private String nickname;
 
     private String cpf;
 
@@ -39,17 +45,17 @@ public class Users {
 
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<GroupParticipants> groupParticipants;
+//    @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+//    private Set<GroupParticipants> groupParticipants;
 
     @OneToOne(mappedBy = "users", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private PersonalWallet personalWallet;
 
-    public Users(int id, String full_name, String cpf, Date birthday, String phone_area_code, String phone_area_number,
+    public Users( String full_name, String nickname,String cpf, Date birthday, String phone_area_code, String phone_area_number,
                  String email , String password, LocalDateTime created_at, LocalDateTime updated_at) {
-        this.id = id;
         this.full_name = full_name;
+        this.nickname = nickname;
         this.cpf = cpf;
         this.birthday = birthday;
         this.phone_area_code = phone_area_code;
@@ -70,6 +76,14 @@ public class Users {
 
     public void setFull_name(String full_name) {
         this.full_name = full_name;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getCpf() {

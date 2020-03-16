@@ -1,5 +1,7 @@
 package com.finfamily.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,22 +10,31 @@ public class GroupParticipants {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden=true)
     private int id;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "user_id")
-    private Users users;
+//    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+//    @JoinColumn(name = "user_id")
+//    private Users users;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "group_id")
-    private Groups groups;
+//    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+//    @JoinColumn(name = "group_id")
+//    private Groups groups;
 
-    private boolean permission_type;
+    @Column(name = "user_id")
+    private int userId;
 
-    public GroupParticipants(int id, Users users, Groups groups){
+    @Column(name = "group_id")
+    private int groupId;
+
+    @Column(name = "is_manager")
+    private boolean isManager;
+
+    public GroupParticipants(int id, int userId, int groupId, boolean isManager){
         this.id = id;
-        this.users = users;
-        this.groups = groups;
+        this.userId = userId;
+        this.groupId = groupId;
+        this.isManager = isManager;
     }
 
     public GroupParticipants() {
@@ -33,27 +44,27 @@ public class GroupParticipants {
         return id;
     }
 
-    public Users getUsers() {
-        return users;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public Groups getGroups() {
-        return groups;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setGroups(Groups groups) {
-        this.groups = groups;
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
-    public boolean isPermission_type() {
-        return permission_type;
+    public boolean isManager() {
+        return isManager;
     }
 
-    public void setPermission_type(boolean permission_type) {
-        this.permission_type = permission_type;
+    public void setIsManager(boolean manager) {
+        isManager = manager;
     }
 }
