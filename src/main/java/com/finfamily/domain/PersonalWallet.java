@@ -1,5 +1,7 @@
 package com.finfamily.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -11,6 +13,7 @@ public class PersonalWallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden=true)
     private int id;
 
     private String name;
