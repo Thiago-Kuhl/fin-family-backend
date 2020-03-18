@@ -1,7 +1,6 @@
 package com.finfamily.controller;
 
-//import com.finfamily.domain.GroupTypes;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.finfamily.domain.GroupParticipants;
 import com.finfamily.domain.Groups;
 import com.finfamily.domain.Users;
@@ -11,17 +10,13 @@ import com.finfamily.security.Encrypt;
 import com.finfamily.repository.AllUsers;
 import com.finfamily.utils.LogGenerator;
 import com.finfamily.utils.Password;
-import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -31,7 +26,7 @@ public class UsersController {
     private AllGroups allGroups;
     private AllGroupParticipants allGroupParticipants;
     private Encrypt hashpwd = new Encrypt();
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+
     private LocalDateTime now = LocalDateTime.now();
     private LogGenerator logGenerator = new LogGenerator();
 
@@ -44,13 +39,13 @@ public class UsersController {
     }
 
     @PostMapping("/api/v1/user/")
-    public ResponseEntity<String> createUser(@RequestBody Users user) throws SQLException {
+    public ResponseEntity<String> createUser(@ModelAttribute Users user) throws SQLException {
 
-        if (allUsers.verifyExistence(user.getEmail(), user.getCpf()).isEmpty()) {
+        if (allUsers.verifyExistence(user.getEmail(), user.getCpf()) == null) {
 
             try {
                 user.setPassword(hashpwd.customPasswordEncoder().encode(user.getPassword()));
-                user.setCreated_at(now);
+                user.setCreated_at(now.toString());
                 allUsers.save(user);
 
                 try {
@@ -93,34 +88,14 @@ public class UsersController {
 //        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("ERROR!");
     }
 
-//    @PostMapping("/api/v1/user/login")
-//    public ResponseEntity<Users> validarLogin(@RequestBody Users users) throws IOException {
-//        Users user = allUsers.buscarUsando(users.getEmail());
-//        if(allUsers.buscarUsando(users.getEmail()) != null){
-//            if(hashpwd.customPasswordEncoder().matches(users.getPassword(), allUsers.getPasswd(users.getEmail()))) {
-//
-//                logGenerator.AcessLog(users.getEmail(), dtf.format(now), true);
-//
-//                return ResponseEntity.status(HttpStatus.OK).body(user);
-//            }
-//            else {
-//
-//                logGenerator.AcessLog(users.getEmail(), dtf.format(now), false);
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//            }
-//        }
-//        else {
-//
-//            logGenerator.AcessLog(users.getEmail(), dtf.format(now), false);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//    }
     @PostMapping("/api/v1/user/login")
-    public ResponseEntity<List<Users>> signinUser(@RequestBody Users user) throws SQLException {
-        List<Users> searchUser = allUsers.loginVerify(user.getEmail());
-        if(!searchUser.isEmpty()){
+    @JsonCreator
+    public ResponseEntity<Users> signinUser(@ModelAttribute Users user) throws ParseException {
+        Users searchUser = allUsers.loginVerify(user.getEmail());
+        if(searchUser != null){
             String hashedPassword = allUsers.getPassword(user.getEmail());
             if(hashpwd.customPasswordEncoder().matches(user.getPassword(),hashedPassword)){
+
                 return ResponseEntity.status(HttpStatus.OK).body(searchUser);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -135,7 +110,7 @@ public class UsersController {
         if (allUsers.findById(user.getId()) != null) {
 
             user.setPassword(allUsers.getBasePasswd(user.getId()));
-            user.setUpdated_at(now);
+            user.setUpdated_at(now.toString());
             allUsers.save(user);
             return ResponseEntity.status(HttpStatus.OK).body("Dados alterados com sucesso!");
         }
@@ -150,7 +125,7 @@ public class UsersController {
                 user = allUsers.getUserById(password.getIdUsuario());
 
                 user.setPassword(hashpwd.customPasswordEncoder().encode(password.getNewPassword()));
-                user.setUpdated_at(now);
+                user.setUpdated_at(now.toString());
                 allUsers.save(user);
 
                 return ResponseEntity.status(HttpStatus.OK).body("Senha alterada com sucesso!");

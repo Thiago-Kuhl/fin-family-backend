@@ -13,13 +13,13 @@ import java.util.List;
 public interface AllUsers extends JpaRepository<Users, Integer > {
 
     @Query(value = "SELECT u.* FROM users u WHERE u.email = :email OR u.cpf = :cpf ", nativeQuery = true)
-    List<Users> verifyExistence(String email, String cpf);
+    Users verifyExistence(String email, String cpf);
 
     @Query(value = "SELECT u.id FROM users u WHERE u.cpf = :cpf AND u.email = :email", nativeQuery = true)
     int getUserId(String cpf, String email);
 
     @Query(value = "SELECT u.* FROM users u WHERE u.email = :email", nativeQuery = true)
-    List<Users> loginVerify(String email);
+    Users loginVerify(String email);
 
     @Query(value = "SELECT u.password FROM users u WHERE u.email = :email", nativeQuery =  true)
     String getPassword(String email);

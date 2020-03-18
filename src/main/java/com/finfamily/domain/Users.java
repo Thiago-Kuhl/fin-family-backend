@@ -1,19 +1,11 @@
 package com.finfamily.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import springfox.documentation.annotations.ApiIgnore;
-
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Set;
-
 
 @Entity
 @Embeddable
@@ -23,27 +15,38 @@ public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(hidden=true)
+    @JsonProperty
     private int id;
 
+    @JsonProperty
     private String full_name;
 
+    @JsonProperty
     private String nickname;
 
+    @JsonProperty
     private String cpf;
 
-    private Date birthday;
+    @JsonProperty
+    private String birthday;
 
+    @JsonProperty
     private String phone_area_code;
 
+    @JsonProperty
     private String phone_area_number;
 
+    @JsonProperty
     private String email;
 
+    @JsonProperty
     private String password;
 
-    private LocalDateTime created_at;
+    @JsonProperty
+    private String created_at;
 
-    private LocalDateTime updated_at;
+    @JsonProperty
+    private String updated_at;
 
 //    @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 //    private Set<GroupParticipants> groupParticipants;
@@ -52,8 +55,9 @@ public class Users {
             cascade = CascadeType.ALL)
     private PersonalWallet personalWallet;
 
-    public Users( String full_name, String nickname,String cpf, Date birthday, String phone_area_code, String phone_area_number,
-                 String email , String password, LocalDateTime created_at, LocalDateTime updated_at) {
+    public Users( int id, String full_name, String nickname,String cpf, String birthday, String phone_area_code, String phone_area_number,
+                 String email , String password, String created_at, String updated_at) {
+        this.id = id;
         this.full_name = full_name;
         this.nickname = nickname;
         this.cpf = cpf;
@@ -94,11 +98,11 @@ public class Users {
         this.cpf = cpf;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 
@@ -134,19 +138,19 @@ public class Users {
         this.password = password;
     }
 
-    public LocalDateTime getCreated_at() {
+    public String getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(LocalDateTime created_at) {
+    public void setCreated_at(String created_at) {
         this.created_at = created_at;
     }
 
-    public LocalDateTime getUpdated_at() {
+    public String getUpdated_at() {
         return updated_at;
     }
 
-    public void setUpdated_at(LocalDateTime updated_at) {
+    public void setUpdated_at(String updated_at) {
         this.updated_at = updated_at;
     }
 
