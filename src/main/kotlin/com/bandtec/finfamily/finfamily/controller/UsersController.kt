@@ -48,48 +48,105 @@ class UsersController {
     }
 
     @PostMapping
-    fun createUser(@ModelAttribute user : Users): ResponseEntity<Users?>?{
+    fun createUser(@ModelAttribute user : Users): ResponseEntity<Optional<Users>> {
 
-        var searchUsers : List<Users?>? = usersRepository.verifyExistence(user.email, user.cpf)
+        var searchUser: Users? = usersRepository.loginVerify(user.email)
+        var userId : Int
+        var groupId : Int
         var group : Groups
+        var groupParticipants : GroupParticipants
 
-        return if (searchUsers?.isNotEmpty()!!){
-            ResponseEntity.badRequest().build()
+        return if (searchUser == null) {
+
+            user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
+            user.createdAt = currentDate
+            usersRepository.save(user)
+
+            userId = usersRepository.getUserId(user.email)
+
+            group = Groups(0, "My Finances", 1, userId)
+
+            groupsRepository.save(group)
+
+            groupId = groupsRepository.getGroupId(userId)
+
+            groupParticipants = GroupParticipants(0, userId, groupId, true)
+
+            groupsParticipantRepository.save(groupParticipants)
+
+            println("ooooi")
+
+            val userReturn : Optional<Users> = usersRepository.findById(userId)
+            ResponseEntity.status(HttpStatus.CREATED).body(userReturn)
+
+        }else{
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-        else{
-//            try {
-                user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
-                user.createdAt = currentDate;
-                usersRepository.save(user);
-//            }
-//            catch (err : Exception){
-//                return ResponseEntity.badRequest().build()
-//            }
-//            try {
-                group = Groups(0, "My Finances", 1, usersRepository.getUserId(user.cpf, user.email))
-
-                groupsRepository.save(group)
-
-//            }
-//            catch (err : Exception) {
-//                return ResponseEntity.badRequest().build()
-//            }
-//            try {
-                val groupParticipants = GroupParticipants(0, usersRepository.getUserId(user.cpf, user.email),
-                        groupsRepository.getGroupId(group.groupOwner), true)
-
-                groupsParticipantRepository.save(groupParticipants)
-//               return ResponseEntity.ok().build()
-//            }
-//            catch (err : java.lang.Exception) {
-//                groupsRepository.removeGroup(usersRepository.getUserId(user.cpf, user.email))
-//                usersRepository.removeUser(user.cpf, user.email)
-//            }
-            val loginUser : Users? = usersRepository.loginVerify(user.email)
-            ResponseEntity.status(HttpStatus.OK).body(loginUser)
-        }
-
-
     }
+
+//        usersRepository.loginVerify(user.email)
+
+//        user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
+//            user.createdAt = currentDate;
+//            usersRepository.save(user);
+//
+//        val userId =  9
+//        val groupId = 9
+//        val group = Groups(0, "My Finances", 1, userId)
+//
+//            groupsRepository.save(group)
+//
+//            val groupParticipants = GroupParticipants(0, userId,
+//                    groupId, true)
+//
+//            groupsParticipantRepository.save(groupParticipants)
+//
+//        val teste : Optional<Users> = usersRepository.findById(9)
+//
+//            return ResponseEntity.status(HttpStatus.OK).body(teste)
+//
+//
+//
+//
+//    }
+//
+////        var searchUsers : List<Users?>? = usersRepository.verifyExistence(user.email, user.cpf)
+////        var group : Groups
+////
+////        return if (searchUsers?.isNotEmpty()!!){
+////            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(searchUsers)
+////        }
+////        else{
+//////            try {
+////                user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
+////                user.createdAt = currentDate;
+////                usersRepository.save(user);
+//////            }
+//////            catch (err : Exception){
+//////                return ResponseEntity.badRequest().build()
+//////            }
+//////            try {
+////                group = Groups(0, "My Finances", 1, usersRepository.getUserId(user.cpf, user.email))
+////
+////                groupsRepository.save(group)
+////
+//////            }
+//////            catch (err : Exception) {
+//////                return ResponseEntity.badRequest().build()
+//////            }
+//////            try {
+////                val groupParticipants = GroupParticipants(0, usersRepository.getUserId(user.cpf, user.email),
+////                        groupsRepository.getGroupId(group.groupOwner), true)
+////
+////                groupsParticipantRepository.save(groupParticipants)
+//////               return ResponseEntity.ok().build()
+//////            }
+//////            catch (err : java.lang.Exception) {
+//////                groupsRepository.removeGroup(usersRepository.getUserId(user.cpf, user.email))
+//////                usersRepository.removeUser(user.cpf, user.email)
+//////            }
+////            val loginUser : Users? = usersRepository.loginVerify(user.email)
+////            ResponseEntity.status(HttpStatus.OK).body(searchUsers)
+////        }
 
 }

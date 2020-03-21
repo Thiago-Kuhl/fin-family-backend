@@ -7,7 +7,7 @@ import javax.persistence.*
 class Users (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id : Int = 0,
+    val id : Int = 0,
     @Column(name = "full_name")
     val fullName : String = "",
     val cpf : String = "",
