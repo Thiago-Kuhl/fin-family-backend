@@ -33,7 +33,7 @@ class UsersController {
     val hashpass: Encrypt = Encrypt()
 
     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-    val currentDate = sdf.format(Date())
+    val currentDate = sdf.format(Date())!!
 
     @PostMapping("login")
     fun loginUser(@ModelAttribute user: Users): ResponseEntity<Users> {
@@ -58,16 +58,30 @@ class UsersController {
         return if (searchUsers != null) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         } else {
-            user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
-            user.createdAt = currentDate
-            usersRepository.save(user)
-            userId = usersRepository.getUserId(user.email)
-            group = Groups(0, "My Finances", 1, userId)
-            groupsRepository.save(group)
-
-            groupId = groupsRepository.getGroupId(userId)
-            groupParticipants = GroupParticipants(0, userId, groupId, true)
-            groupsParticipantRepository.save(groupParticipants)
+            try{
+                user.password = hashpass.customPasswordEncoder()?.encode(user.password)!!
+                user.createdAt = currentDate
+                usersRepository.save(user)
+            }
+            catch (err : Exception){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
+            try{
+                userId = usersRepository.getUserId(user.email)
+                group = Groups(0, "My Finances", 1, userId)
+                groupsRepository.save(group)
+            }
+            catch (err : Exception){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
+            try{
+                groupId = groupsRepository.getGroupId(userId)
+                groupParticipants = GroupParticipants(0, userId, groupId, true)
+                groupsParticipantRepository.save(groupParticipants)
+            }
+            catch (err : Exception){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
 
             ResponseEntity.status(HttpStatus.CREATED).body(usersRepository.findById(userId))
         }
