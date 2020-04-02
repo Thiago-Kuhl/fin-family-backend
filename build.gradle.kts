@@ -45,6 +45,11 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
+tasks.wrapper {
+	distributionType = Wrapper.DistributionType.ALL
+}
+
+
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootWar>().configureEach {
 	launchScript()
 }
