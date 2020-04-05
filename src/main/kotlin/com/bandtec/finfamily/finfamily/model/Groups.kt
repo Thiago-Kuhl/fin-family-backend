@@ -14,6 +14,8 @@ class Groups(
         @Column(name = "group_type")
         val groupType : Int = 0,
         @Column(name = "group_owner")
-        val groupOwner : Int = 0
+        val groupOwner : Int = 0,
+        @Column(name = "group_external_id")
+        var externalGroupId : String =  ""
 
 )

@@ -2,18 +2,17 @@ package com.bandtec.finfamily.finfamily.controller
 
 import com.bandtec.finfamily.finfamily.model.GroupParticipants
 import com.bandtec.finfamily.finfamily.model.Groups
+import com.bandtec.finfamily.finfamily.model.UserUpdate
 import com.bandtec.finfamily.finfamily.model.Users
 import com.bandtec.finfamily.finfamily.repository.GroupsParticipantRepository
 import com.bandtec.finfamily.finfamily.repository.GroupsRepository
 import com.bandtec.finfamily.finfamily.repository.UsersRepository
 import com.bandtec.finfamily.finfamily.security.Encrypt
+import com.bandtec.finfamily.finfamily.utils.groupIdGenerator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -68,8 +67,15 @@ class UsersController {
             }
             try{
                 userId = usersRepository.getUserId(user.email)
-                group = Groups(0, "My Finances", 1, userId)
-                groupsRepository.save(group)
+                var canIPass = false
+                while(!canIPass){
+                    var groupExternalId = groupIdGenerator()
+                    if(groupsRepository.verifyGroupExternalId(groupExternalId) == 0){
+                        group = Groups(0, "My Finances", 1, userId, groupExternalId)
+                        groupsRepository.save(group)
+                        canIPass = true
+                    }
+                }
             }
             catch (err : Exception){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
@@ -84,6 +90,35 @@ class UsersController {
             }
 
             ResponseEntity.status(HttpStatus.CREATED).body(usersRepository.findById(userId))
+        }
+    }
+
+    @PostMapping("update/{id}")
+    fun updateUser(@ModelAttribute user : UserUpdate, @PathVariable("id") userId: String): ResponseEntity<Users> {
+        var dbUser = usersRepository.getUserById(userId)
+        var updatedUser = usersRepository.getUserById(userId)
+        try{
+            if(user.fullName.isNotEmpty() || user.fullName.isNotBlank()){
+                updatedUser.fullName = user.fullName
+            }
+            if(user.nickname.isNotEmpty() || user.nickname.isNotBlank()){
+                updatedUser.nickname = user.nickname
+            }
+            if(user.email.isNotEmpty() || user.email.isNotBlank()){
+                updatedUser.email = user.email
+            }
+            if(user.basePassword.isNotEmpty() || user.basePassword.isNotBlank()){
+                if(hashpass.customPasswordEncoder()?.matches(user.basePassword, dbUser.password)!!){
+                    updatedUser.password = hashpass.customPasswordEncoder()?.encode(user.newPassword)!!
+                }
+                else{
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dbUser)
+                }
+            }
+            usersRepository.save(updatedUser)
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser)
+        }catch (err : Exception){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dbUser)
         }
     }
 }
