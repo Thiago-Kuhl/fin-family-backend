@@ -9,6 +9,8 @@ import com.bandtec.finfamily.finfamily.repository.GroupsRepository
 import com.bandtec.finfamily.finfamily.repository.UsersRepository
 import com.bandtec.finfamily.finfamily.security.Encrypt
 import com.bandtec.finfamily.finfamily.utils.groupIdGenerator
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,6 +20,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/user")
+@Api(value="Usuários", description="Operações realacionadas ao usuário")
 class UsersController {
 
     @Autowired
@@ -35,6 +38,7 @@ class UsersController {
     val currentDate = sdf.format(Date())!!
 
     @PostMapping("login")
+    @ApiOperation(value = "Realiza o login do usuário")
     fun loginUser(@ModelAttribute user: Users): ResponseEntity<Users> {
         val searchUser: Users? = usersRepository.loginVerify(user.email)
         if (searchUser != null) {
@@ -47,13 +51,14 @@ class UsersController {
     }
 
     @PostMapping
+    @ApiOperation(value = "Realiza a criação de um usuário")
     fun createUser(@ModelAttribute user : Users): ResponseEntity<Optional<Users>> {
 
         var searchUsers: Users? = usersRepository.getUser(user.email, user.cpf)
         var group: Groups
         var groupParticipants: GroupParticipants
-        var userId: Int
-        var groupId: Int
+        var userId = 0
+        var groupId = 0
         return if (searchUsers != null) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         } else {
@@ -78,6 +83,7 @@ class UsersController {
                 }
             }
             catch (err : Exception){
+                usersRepository.deleteById(userId)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
             try{
@@ -86,6 +92,8 @@ class UsersController {
                 groupsParticipantRepository.save(groupParticipants)
             }
             catch (err : Exception){
+                groupsRepository.deleteById(groupId)
+                usersRepository.deleteById(userId)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
 
@@ -94,6 +102,7 @@ class UsersController {
     }
 
     @PostMapping("update/{id}")
+    @ApiOperation(value = "Realiza a atualização de dados de um usuário")
     fun updateUser(@ModelAttribute user : UserUpdate, @PathVariable("id") userId: String): ResponseEntity<Users> {
         var dbUser = usersRepository.getUserById(userId)
         var updatedUser = usersRepository.getUserById(userId)
@@ -115,10 +124,24 @@ class UsersController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dbUser)
                 }
             }
+            updatedUser.updatedAt = currentDate
             usersRepository.save(updatedUser)
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser)
         }catch (err : Exception){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dbUser)
         }
+    }
+
+    @GetMapping("{userId}/groups}")
+    @ApiOperation(value = "Trás todos os grupos de um usuário")
+    fun getUserGroups(@PathVariable("userId") userId: String): ResponseEntity<List<Groups>>{
+
+        val groups = groupsRepository.getUserGroups(userId.toInt())
+        return if(groups.isEmpty()){
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }else {
+            ResponseEntity.status(HttpStatus.OK).body(groups)
+        }
+
     }
 }
