@@ -40,14 +40,21 @@ class UsersController {
     @PostMapping("login")
     @ApiOperation(value = "Realiza o login do usuário")
     fun loginUser(@ModelAttribute user: Users): ResponseEntity<Users> {
-        val searchUser: Users? = usersRepository.loginVerify(user.email)
-        if (searchUser != null) {
-            val hashedPassword: String? = usersRepository.getPassword(user.email)
-            return if (hashpass.customPasswordEncoder()?.matches(user.password, hashedPassword)!!) {
-                ResponseEntity.status(HttpStatus.OK).body(searchUser)
-            } else ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        return try{
+            val searchUser: Users? = usersRepository.loginVerify(user.email)
+            if (searchUser != null) {
+                val hashedPassword: String? = usersRepository.getPassword(user.email)
+                if (hashpass.customPasswordEncoder()?.matches(user.password, hashedPassword)!!) {
+                    ResponseEntity.status(HttpStatus.OK).body(searchUser)
+                } else ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            } else{
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            }
+        }catch (err : Exception){
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
 
     @PostMapping
@@ -68,6 +75,7 @@ class UsersController {
                 usersRepository.save(user)
             }
             catch (err : Exception){
+                println(err)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
             try{
@@ -84,16 +92,18 @@ class UsersController {
             }
             catch (err : Exception){
                 usersRepository.deleteById(userId)
+                println(err)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
             try{
-                groupId = groupsRepository.getGroupId(userId)
+                groupId = groupsRepository.getGroupIdByOwner(userId)
                 groupParticipants = GroupParticipants(0, userId, groupId, true)
                 groupsParticipantRepository.save(groupParticipants)
             }
             catch (err : Exception){
                 groupsRepository.deleteById(groupId)
                 usersRepository.deleteById(userId)
+                println(err)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
 
@@ -128,20 +138,29 @@ class UsersController {
             usersRepository.save(updatedUser)
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser)
         }catch (err : Exception){
+            println(err)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dbUser)
         }
     }
 
-    @GetMapping("{userId}/groups}")
+    @GetMapping("{userId}/groups")
     @ApiOperation(value = "Trás todos os grupos de um usuário")
-    fun getUserGroups(@PathVariable("userId") userId: String): ResponseEntity<List<Groups>>{
-
-        val groups = groupsRepository.getUserGroups(userId.toInt())
-        return if(groups.isEmpty()){
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
-        }else {
-            ResponseEntity.status(HttpStatus.OK).body(groups)
+    fun getUserGroups(@PathVariable("userId") userId: Int): ResponseEntity<List<Groups>> {
+    i
+        val groupIds = groupsParticipantRepository.getUserGroupIds(userId)
+        return try{
+            if(groupIds.isEmpty()){
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            }else {
+                val groups = groupsRepository.findAllById(groupIds)
+                ResponseEntity.status(HttpStatus.OK).body(groups.toList())
+            }
         }
+        catch (err : Exception){
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+
 
     }
 }

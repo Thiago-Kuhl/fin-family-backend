@@ -40,6 +40,7 @@ class GroupsController {
                     }
                 }
             } catch (err: Exception) {
+                println(err)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
             try {
@@ -48,6 +49,7 @@ class GroupsController {
                 groupId = group.id
                 groupsParticipantRepository.save(participants)
             } catch (err: Exception) {
+                println(err)
                 groupsRepository.deleteById(groupId)
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             }
@@ -62,7 +64,7 @@ class GroupsController {
     @PostMapping("remove/{groupId}/{externalId}")
     fun removePublicGroup(@PathVariable("groupId") groupId: Int,
                     @PathVariable("externalId") external_id: String): ResponseEntity<Groups> {
-        val members = groupsParticipantRepository.getGroupMembers(groupId)
+        val members = groupsParticipantRepository.getGroupAllMembers(groupId)
         val transactions = groupsTransactionRepository.getGroupTransactions(groupId)
 
         try {
@@ -70,12 +72,14 @@ class GroupsController {
                 groupsTransactionRepository.deleteAll(transactions)
             }
         } catch (err: Exception) {
+            println(err)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
         try {
                 groupsParticipantRepository.deleteAll(members)
         } catch (err: Exception) {
             groupsTransactionRepository.saveAll(transactions)
+            println(err)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
         try {
@@ -83,6 +87,7 @@ class GroupsController {
         } catch (err: Exception) {
             groupsParticipantRepository.saveAll(members)
             groupsTransactionRepository.saveAll(transactions)
+            println(err)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
 
