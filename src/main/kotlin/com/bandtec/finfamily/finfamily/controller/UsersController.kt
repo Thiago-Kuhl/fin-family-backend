@@ -146,7 +146,6 @@ class UsersController {
     @GetMapping("{userId}/groups")
     @ApiOperation(value = "Trás todos os grupos de um usuário")
     fun getUserGroups(@PathVariable("userId") userId: Int): ResponseEntity<List<Groups>> {
-    i
         val groupIds = groupsParticipantRepository.getUserGroupIds(userId)
         return try{
             if(groupIds.isEmpty()){
