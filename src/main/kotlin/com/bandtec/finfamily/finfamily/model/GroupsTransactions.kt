@@ -30,13 +30,13 @@ class GroupsTransactions (
         @Column(name = "user_id")
         var userId : Int  = 0,
 
-        @Column(name = "id_recurrence_type")
+        @Column(name = "recurrence_type_id")
         var idRecurrenceType : Int = 0,
 
-        @Column(name = "id_expense_category")
+        @Column(name = "expense_type_id")
         var idExpenseCategory : Int = 0,
 
-        @Column(name = "id_transaction_type")
+        @Column(name = "transaction_type_id")
         var idTransactionType : Int = 0,
 
         @ApiParam(hidden = true)
