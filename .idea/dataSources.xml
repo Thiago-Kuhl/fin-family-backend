@@ -7,5 +7,11 @@
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://127.0.0.1:1433;database=fin_family</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="aws_fin_family" uuid="c5ca7f39-3b97-4aed-8e6f-0d90af0bfe3e">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://fin-family.c8wntdf2z59o.us-east-1.rds.amazonaws.com:1433</jdbc-url>
+    </data-source>
   </component>
 </project>
