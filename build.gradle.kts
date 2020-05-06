@@ -10,6 +10,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.3.61"
 }
 
+apply(plugin = "war")
 group = "com.bandtec.finfamily"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -43,4 +44,13 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "1.8"
 	}
+}
+
+tasks.wrapper {
+	distributionType = Wrapper.DistributionType.ALL
+}
+
+
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootWar>().configureEach {
+	launchScript()
 }
