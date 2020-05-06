@@ -14,6 +14,6 @@ class GroupParticipants(
   @Column(name = "group_id")
   val groupId : Int = 0,
   @Column(name = "is_manager")
-  val isManager : Boolean = true
+  var isManager : Boolean = true
 
 )
