@@ -13,7 +13,7 @@ pipeline {
     stage('deploy') {
       steps {
         echo 'Deploying .war file'
-        sh 'scp -i /home/jenkins/keys/fin-family.pem build/libs/finfamily-0.0.1-SNAPSHOT.war ubuntu@172.31.88.177:/tmp'
+        sh 'ssh -i /home/jenkins/keys/fin-family.pem ubuntu@172.31.88.177 \'sh ls\'\' '
         echo 'Changing .war file permisions and deploying file on Tomcat'
         sh 'ssh -i /home/jenkins/keys/fin-family.pem ubuntu@172.31.88.177 \'sh /home/ubuntu/deploy.sh\' '
       }
