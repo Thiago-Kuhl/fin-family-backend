@@ -1,6 +1,6 @@
 # Fin Family
 ### Final ADS Project!
 
-## Colaborators
+### Colaborators
 
-## Contribuition
+### Contribuition
