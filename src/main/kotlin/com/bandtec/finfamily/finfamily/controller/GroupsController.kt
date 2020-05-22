@@ -26,7 +26,7 @@ class GroupsController {
     lateinit var groupsTransactionRepository: GroupsTransactionRepository
 
     @PostMapping("create")
-    fun createGroup(@ModelAttribute group: Groups): ResponseEntity<Optional<Groups>> {
+    fun createGroup(@RequestBody group: Groups): ResponseEntity<Optional<Groups>> {
         val repeatedGroup = groupsRepository.verifyGroupToUser(group.groupName, group.groupType, group.groupOwner)
         var groupId = 0
         if (repeatedGroup == 0) {

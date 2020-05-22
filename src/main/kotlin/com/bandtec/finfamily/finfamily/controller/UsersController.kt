@@ -39,16 +39,26 @@ class UsersController {
 
     @PostMapping("login")
     @ApiOperation(value = "Realiza o login do usuário")
-    fun loginUser(@ModelAttribute user: Users): ResponseEntity<Users> {
-
+    fun loginUser(@RequestBody user: Users): ResponseEntity<Users> {
+        println(user.email)
+        println(user.password)
         return try{
             val searchUser: Users? = usersRepository.loginVerify(user.email)
             if (searchUser != null) {
+                println("1")
                 val hashedPassword: String? = usersRepository.getPassword(user.email)
+                println(hashpass.customPasswordEncoder()?.matches(user.password, hashedPassword)!!)
+
                 if (hashpass.customPasswordEncoder()?.matches(user.password, hashedPassword)!!) {
+                    println("2")
                     ResponseEntity.status(HttpStatus.OK).body(searchUser)
-                } else ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+                } else {
+                    println(3)
+                    ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+                }
+
             } else{
+                println(4)
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             }
         }catch (err : Exception){
@@ -59,7 +69,7 @@ class UsersController {
 
     @PostMapping
     @ApiOperation(value = "Realiza a criação de um usuário")
-    fun createUser(@ModelAttribute user : Users): ResponseEntity<Optional<Users>> {
+    fun createUser(@RequestBody user : Users): ResponseEntity<Optional<Users>> {
 
         var searchUsers: Users? = usersRepository.getUser(user.email, user.cpf)
         var group: Groups
@@ -113,7 +123,7 @@ class UsersController {
 
     @PostMapping("update/{id}")
     @ApiOperation(value = "Realiza a atualização de dados de um usuário")
-    fun updateUser(@ModelAttribute user : UserUpdate, @PathVariable("id") userId: String): ResponseEntity<Users> {
+    fun updateUser(@RequestBody user : UserUpdate, @PathVariable("id") userId: Int): ResponseEntity<Users> {
         var dbUser = usersRepository.getUserById(userId)
         var updatedUser = usersRepository.getUserById(userId)
         try{
