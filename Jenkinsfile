@@ -13,7 +13,7 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        sh 'ssh -o "StrictHostKeyChecking=no" -i /var/lib/jenkins/keys/fin-family-backend-new.pem ubuntu@54.160.85.5 ls'
+        sh 'scp -o "StrictHostKeyChecking=no" -i /var/lib/jenkins/keys/fin-family-backend-new.pem build/libs/finfamily-0.0.1-SNAPSHOT.war ec2-user@54.160.85.5:/tmp/ROOT.war'
       }
     }
 
