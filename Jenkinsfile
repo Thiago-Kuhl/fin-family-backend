@@ -7,8 +7,7 @@ pipeline {
         sh 'ls'
         sh './gradlew build -x test'
         sh 'echo \'Validating file generation: \''
-        sh '''        sh \'ls build/libs/\'
-'''
+        sh 'ls build/libs/'
       }
     }
 
