@@ -3,9 +3,11 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'whoami'
-        sh 'pwd'
-        sh 'ls'
+        sh 'echo \'First Step: Generate .war file\''
+        sh 'sh \'./gradlew build -x test\''
+        sh 'echo \'Validating file generation: \''
+        sh '''        sh \'ls build/libs/\'
+'''
       }
     }
 
