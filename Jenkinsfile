@@ -13,7 +13,7 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        sh 'ssh -o -i /var/lib/jenkins/keys/fin-family-backend-new.pem ubuntu@54.160.85.5 ls'
+        sh 'ssh -i /var/lib/jenkins/keys/fin-family-backend-new.pem ubuntu@54.160.85.5 ls'
       }
     }
 
