@@ -13,7 +13,7 @@ interface UsersRepository : CrudRepository <Users, Int>{
     fun getUser(email : String?, cpf : String?): Users?
 
     @Query(value = "SELECT u.* FROM users u WHERE u.id = :userId", nativeQuery = true)
-    fun getUserById(userId : String): Users
+    fun getUserById(userId : Int): Users
 
     @Query(value = "SELECT u.* FROM users u WHERE u.email = :email", nativeQuery = true)
     fun loginVerify(email : String?): Users?
