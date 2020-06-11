@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 @Api(value="Usuários", description="Operações realacionadas ao usuário")
 class UsersController {
 
@@ -40,8 +40,8 @@ class UsersController {
     @PostMapping("login")
     @ApiOperation(value = "Realiza o login do usuário")
     fun loginUser(@RequestBody user: Users): ResponseEntity<Users> {
-        println(user.email)
-        println(user.password)
+        //println(user.email)
+        //println(user.password)
         return try{
             val searchUser: Users? = usersRepository.loginVerify(user.email)
             if (searchUser != null) {
@@ -169,7 +169,5 @@ class UsersController {
             println(err)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-
-
     }
 }

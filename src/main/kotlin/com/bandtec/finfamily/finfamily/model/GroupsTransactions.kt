@@ -34,7 +34,10 @@ class GroupsTransactions (
         var idRecurrenceType : Int = 0,
 
         @Column(name = "expense_type_id")
-        var idExpenseCategory : Int = 0,
+        var idExpenseCategory : Int?,
+
+        @Column(name = "receipe_type_id")
+        var idReceipeCategory : Int?,
 
         @Column(name = "transaction_type_id")
         var idTransactionType : Int = 0,

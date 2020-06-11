@@ -13,7 +13,7 @@ import com.bandtec.finfamily.finfamily.utils.groupIdGenerator
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/group")
+@RequestMapping("/api/v1/groups")
 class GroupsController {
 
     @Autowired

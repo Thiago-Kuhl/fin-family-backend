@@ -15,6 +15,12 @@ interface GroupsParticipantRepository: CrudRepository<GroupParticipants, Int> {
             nativeQuery = true)
     fun getGroupMember(userId: Int, groupId : Int) : List<GroupParticipants>
 
+//    @Query(value = "SELECT groupPa from group", nativeQuery = true)
+//    fun getGroupId(extId : Int) : Int
+
+    @Query(value = "select user_id from group_participants where group_id = :groupId", nativeQuery = true)
+    fun getGroupMembers(groupId: Int) : List<Int>
+
     @Query(value = "select COUNT(user_id) from group_participants where user_id = :userId AND group_id = :groupId",
             nativeQuery = true)
     fun verifyParticipantExistence(userId: Int, groupId: Int) : Int
