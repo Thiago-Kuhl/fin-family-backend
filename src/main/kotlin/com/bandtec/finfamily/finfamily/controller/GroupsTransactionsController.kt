@@ -5,6 +5,7 @@ import com.bandtec.finfamily.finfamily.repository.GroupsTransactionRepository
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.text.SimpleDateFormat
@@ -91,14 +92,14 @@ class GroupsTransactionsController {
 
     @PostMapping("create")
     @ApiOperation(value = "Cria uma transação para um grupo")
-    fun createTransaction(@RequestBody transaction: GroupsTransactions): ResponseEntity<GroupsTransactions> {
+    fun createTransaction(@RequestBody transaction: GroupsTransactions): ResponseEntity<String> {
 //        if(transaction.idExpenseCategory == 0){
 //            transaction.idExpenseCategory = null
 //        }
         return try {
             transaction.createdAt = currentDate
             gTRepository.save(transaction)
-            ResponseEntity.ok().build()
+            ResponseEntity.status(HttpStatus.CREATED).body("Sucesso!")
         } catch (err: Exception) {
             ResponseEntity.badRequest().build()
         }
