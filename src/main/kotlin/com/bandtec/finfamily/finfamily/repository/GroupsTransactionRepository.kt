@@ -21,6 +21,9 @@ interface GroupsTransactionRepository: CrudRepository<GroupsTransactions, Int> {
     @Query(value = "SELECT * FROM groups_transaction WHERE user_id = :userId AND group_id = :groupId", nativeQuery = true)
     fun getUserTransactions(userId : Int, groupId: Int) : List<GroupsTransactions>
 
+    @Query(value = "SELECT * FROM groups_transaction WHERE user_id = :userId", nativeQuery = true)
+    fun getAllUserTransactions(userId: Int) : List<GroupsTransactions>
+
     @Query(value = "DELETE FROM groups_transaction WHERE group_id = :groupId", nativeQuery = true)
     fun removeTransactions(groupId : Int)
 

@@ -26,6 +26,8 @@ interface GroupsRepository: CrudRepository<Groups, Int> {
     @Query(value = "select * from groups where id = :id" , nativeQuery = true)
     fun getUserGroupIds(id: Int) : List<Groups>
 
+    @Query(value = "select * from groups where group_owner = :groupOwner", nativeQuery = true)
+    fun getUsersGroupsOwner(groupOwner: Int) : List<Groups>
 
 
 }
