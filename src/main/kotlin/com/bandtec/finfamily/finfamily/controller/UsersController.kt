@@ -71,6 +71,7 @@ class UsersController {
         }
     }
 
+
     @PostMapping
     @ApiOperation(value = "Realiza a criação de um usuário")
     fun createUser(@RequestBody user: Users): ResponseEntity<Optional<Users>> {
@@ -150,6 +151,18 @@ class UsersController {
         } catch (err: Exception) {
             println(err)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dbUser)
+        }
+    }
+
+    @GetMapping("name/{userId}")
+    @ApiOperation(value = "Trás o nome do nickname do contribuidor")
+    fun getUserName(@PathVariable("userId") userId: Int) : ResponseEntity<String>{
+        val userName = usersRepository.getUserName(userId)
+        return if(userName.isNotEmpty()){
+            ResponseEntity.status(HttpStatus.OK).body(userName)
+
+        }else {
+            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         }
     }
 

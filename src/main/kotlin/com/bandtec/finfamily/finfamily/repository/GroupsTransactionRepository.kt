@@ -29,4 +29,7 @@ interface GroupsTransactionRepository: CrudRepository<GroupsTransactions, Int> {
 
     @Query(value = "SELECT COUNT (id) FROM groups_transaction WHERE group_id = :groupId", nativeQuery = true)
     fun countGroupTransactions(groupId : Int) : Int
+
+    @Query(value = "SELECT * FROM groups_transaction WHERE id = :transId", nativeQuery = true)
+    fun findTrans(transId : Int) : GroupsTransactions
 }
