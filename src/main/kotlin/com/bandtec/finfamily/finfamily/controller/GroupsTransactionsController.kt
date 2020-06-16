@@ -38,6 +38,22 @@ class GroupsTransactionsController {
         }
     }
 
+    @GetMapping("{groupId}/expenses")
+    @ApiOperation(value = "Trás as entradas de um grupo")
+    fun getGroupExpenses(@PathVariable("groupId") groupId: Int): ResponseEntity<List<GroupsTransactions>> {
+
+        return try {
+            val transactions = gTRepository.getGroupEntries(groupId, 2)
+            if (transactions.isNotEmpty()) {
+                ResponseEntity.ok().body(transactions)
+            } else {
+                ResponseEntity.noContent().build()
+            }
+        } catch (err: Exception) {
+            ResponseEntity.badRequest().build()
+        }
+    }
+
     @GetMapping("{groupId}/{userId}/entries")
     @ApiOperation(value = "Trás as entradas de um grupo")
     fun getUserEntries(@PathVariable("groupId") groupId: Int, @PathVariable("userId") userId: Int): ResponseEntity<List<GroupsTransactions>> {
@@ -66,22 +82,6 @@ class GroupsTransactionsController {
                     total += it.value
                 }
                 ResponseEntity.ok().body(total)
-            } else {
-                ResponseEntity.noContent().build()
-            }
-        } catch (err: Exception) {
-            ResponseEntity.badRequest().build()
-        }
-    }
-
-    @GetMapping("{groupId}/expenses")
-    @ApiOperation(value = "Trás as entradas de um grupo")
-    fun getGroupExpenses(@PathVariable("groupId") groupId: Int): ResponseEntity<List<GroupsTransactions>> {
-
-        return try {
-            val transactions = gTRepository.getGroupEntries(groupId, 2)
-            if (transactions.isNotEmpty()) {
-                ResponseEntity.ok().body(transactions)
             } else {
                 ResponseEntity.noContent().build()
             }
