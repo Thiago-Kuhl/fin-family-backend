@@ -8,4 +8,5 @@ interface GoalsRepository : JpaRepository<Goals, Int> {
 
     @Query(value = "SELECT * FROM goals WHERE group_id = :groupId", nativeQuery = true)
     fun getGoalsByGroupId(groupId : Int) : List<Goals>
+
 }

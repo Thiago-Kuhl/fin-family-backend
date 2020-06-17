@@ -3,10 +3,7 @@ package com.bandtec.finfamily.finfamily.controller
 import com.bandtec.finfamily.finfamily.model.GroupParticipants
 import com.bandtec.finfamily.finfamily.model.Groups
 import com.bandtec.finfamily.finfamily.model.Users
-import com.bandtec.finfamily.finfamily.repository.GroupsParticipantRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsTransactionRepository
-import com.bandtec.finfamily.finfamily.repository.UsersRepository
+import com.bandtec.finfamily.finfamily.repository.*
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,10 +23,17 @@ class GroupParticipantsController {
     lateinit var groupsRepository: GroupsRepository
 
     @Autowired
-    lateinit var gTRepository: GroupsTransactionRepository
+    lateinit var gtRepository: GroupsTransactionRepository
 
     @Autowired
     lateinit var usersRepository: UsersRepository
+
+    @Autowired
+    lateinit var goalsTransRepository: GoalsTransactionsRepository
+
+    @Autowired
+    lateinit var goalsRepository: GoalsRepository
+
 
 
     @GetMapping("/members/{externalId}")
@@ -66,63 +70,17 @@ class GroupParticipantsController {
         }
     }
 
-    @DeleteMapping("remove/members/{userId}/{groupId}")
-    @ApiOperation(value = "Remove um membro de um grupo")
-    fun removeMember(@PathVariable("userId") userId: Int,
-                     @PathVariable("groupId") groupId: Int): ResponseEntity<String> {
+    //TODO Arrumar a API 'removeMember':
+    // - Replicar a lógica da remoção de usuário para remover o usuário do grupo
 
-        val member = gpRepository.getGroupMember(userId, groupId)
-        val transactions = gTRepository.getUserTransactions(userId, groupId)
-
-
-        try {
-            if (transactions.isNotEmpty()) {
-                gTRepository.deleteAll(transactions)
-            }
-        } catch (err: Exception) {
-            println(err)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
-
-        if (!gpRepository.isManager(userId, groupId)) {
-            return try {
-                gpRepository.deleteAll(member)
-                ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
-            } catch (err: Exception) {
-                gTRepository.saveAll(transactions)
-                println(err)
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-            }
-        } else {
-            try {
-                if (gpRepository.getGroupAllMembers(groupId).size > 1) {
-                    return try {
-                        val newManager = gpRepository.getNewManager(userId, groupId)
-                        newManager.isManager = true
-                        gpRepository.save(newManager)
-                        gpRepository.deleteAll(member)
-                        ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
-                    } catch (err: Exception) {
-                        gTRepository.saveAll(transactions)
-                        println(err)
-                        ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-                    }
-                } else {
-                    return try {
-                        gpRepository.deleteAll(member)
-                        groupsRepository.deleteById(groupId)
-                        ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
-                    } catch (err: Exception) {
-                        gTRepository.saveAll(transactions)
-                        println(err)
-                        ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-                    }
-                }
-            } catch (err: Exception) {
-                println(err)
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-            }
-        }
-    }
+//    @DeleteMapping("remove/members/{userId}/{groupId}")
+//    @ApiOperation(value = "Remove um membro de um grupo")
+//    fun removeMember(@PathVariable("userId") userId: Int,
+//                     @PathVariable("groupId") groupId: Int): ResponseEntity<String> {
+//
+//        val userGroupsTrans = gtRepository.getUserGroupTrans(userId, groupId)
+//        val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, groupId)
+//
+//    }
 
 }

@@ -2,6 +2,7 @@ package com.bandtec.finfamily.finfamily.controller
 
 import com.bandtec.finfamily.finfamily.model.Goals
 import com.bandtec.finfamily.finfamily.repository.GoalsRepository
+import com.bandtec.finfamily.finfamily.repository.GoalsTransactionsRepository
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +18,9 @@ class GoalsController {
     @Autowired
     lateinit var goalsRepository: GoalsRepository
 
+    @Autowired
+    lateinit var gtRepository: GoalsTransactionsRepository
+
     @GetMapping("{group_id}")
     @ApiOperation(value = "Trás as metas de um grupo")
     fun getGoals(@PathVariable("group_id") groupId : Int) : ResponseEntity<List<Goals>>{
@@ -28,17 +32,38 @@ class GoalsController {
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             }
         }catch (err : Exception){
+            println(err)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }
 
-    @PostMapping("/")
+    @PostMapping("create")
     @ApiOperation("Cria uma meta para um grupo")
     fun createGoals(@RequestBody goals: Goals) : ResponseEntity<String>{
         return try {
             goalsRepository.save(goals)
             ResponseEntity.status(HttpStatus.CREATED).body("Sucesso!")
         }catch (err : Exception){
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+    }
+
+    @DeleteMapping("remove/{goalId}")
+    @ApiOperation("Remove uma meta para um grupo")
+    fun removeGoals(@PathVariable("goalId") goalId : Int) : ResponseEntity<String>{
+        return try{
+            val transactions = gtRepository.getGoalsByGoalId(goalId)
+            if (transactions.isNotEmpty()){
+                gtRepository.deleteAll(transactions)
+                goalsRepository.deleteById(goalId)
+                ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+            } else {
+                goalsRepository.deleteById(goalId)
+                ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+            }
+        }catch (err : Exception){
+            println(err)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }

@@ -4,10 +4,7 @@ import com.bandtec.finfamily.finfamily.model.GroupParticipants
 import com.bandtec.finfamily.finfamily.model.Groups
 import com.bandtec.finfamily.finfamily.model.UserUpdate
 import com.bandtec.finfamily.finfamily.model.Users
-import com.bandtec.finfamily.finfamily.repository.GroupsParticipantRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsTransactionRepository
-import com.bandtec.finfamily.finfamily.repository.UsersRepository
+import com.bandtec.finfamily.finfamily.repository.*
 import com.bandtec.finfamily.finfamily.security.Encrypt
 import com.bandtec.finfamily.finfamily.utils.groupIdGenerator
 import io.swagger.annotations.Api
@@ -35,6 +32,12 @@ class UsersController {
 
     @Autowired
     lateinit var gtRepository: GroupsTransactionRepository
+
+    @Autowired
+    lateinit var goalsTransRepository: GoalsTransactionsRepository
+
+    @Autowired
+    lateinit var goalsRepository: GoalsRepository
 
     val hashpass: Encrypt = Encrypt()
 
@@ -156,12 +159,12 @@ class UsersController {
 
     @GetMapping("name/{userId}")
     @ApiOperation(value = "Trás o nome do nickname do contribuidor")
-    fun getUserName(@PathVariable("userId") userId: Int) : ResponseEntity<String>{
+    fun getUserName(@PathVariable("userId") userId: Int): ResponseEntity<String> {
         val userName = usersRepository.getUserName(userId)
-        return if(userName.isNotEmpty()){
+        return if (userName.isNotEmpty()) {
             ResponseEntity.status(HttpStatus.OK).body(userName)
 
-        }else {
+        } else {
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         }
     }
@@ -186,42 +189,132 @@ class UsersController {
     @DeleteMapping("remove/{userId}")
     @ApiOperation(value = "Remove um usuário do sistema")
     fun removeUsers(@PathVariable("userId") userId: Int): ResponseEntity<String> {
-        val userTransactions = gtRepository.getAllUserTransactions(userId)
-        val userGroupsPart = gpRepository.getUsersGroups(userId)
-        var userGroupsOwner = groupsRepository.getUsersGroupsOwner(userId)
-        if (userTransactions.isNotEmpty()) {
-            gtRepository.deleteAll(userTransactions)
-        }
-        if (userGroupsPart.isNotEmpty()) {
-            userGroupsPart.forEachIndexed { i, it ->
-                if (!it.isManager ) {
-                    println("Passei por aqui 1")
-                    gpRepository.deleteById(it.id)
-                } else if (it.isManager && userGroupsOwner[i].groupType == 2) {
-                    println("Passei por aqui 2")
-                    val allParticipants = gpRepository.getAllParticipants(it.groupId)
-                    if (allParticipants.size > 1) {
-                        val newManager = gpRepository.getNewManager(userId, it.groupId)
-                        newManager.isManager = true
-                        gpRepository.save(newManager)
-                        userGroupsOwner.forEach { u ->
-                            u.groupOwner = newManager.userId
-                            groupsRepository.save(u)
-                        }
-                        gpRepository.deleteById(it.id)
-                    }
-                }else if(it.isManager){
-                    println("Passei por aqui 3")
-                    gpRepository.deleteById(it.id)
-                    println("Passei por aqui 4")
+        return try {
+            val isParticipantOf = gpRepository.getUsersGroups(userId)
+            val isOwnerOfPublic = groupsRepository.getUsersPublicGroupsOwner(userId)
 
-                    groupsRepository.deleteById(it.groupId)
-                    println("Passei por aqui 5")
+            //Verifica se o usuário participa de algum grupo
+            println("Usuário participa de ${isParticipantOf.size} grupos!")
+            isParticipantOf.forEachIndexed { i, it ->
+                println("Passando pela ${i + 1}ª vez")
+                //Verifica se o usuário é manager
+                if (it.isManager) {
+                    println("Usuário é manager do grupo ${it.groupId}!")
+                    //Busca todos os participantes de um grupo
+                    val isPublicGroup = groupsRepository.isPublicGroup(it.groupId)
+                    if (isPublicGroup) {
+                        println("O grupo ${it.groupId} é um grupo público!")
+                        val members = gpRepository.getGroupAllMembers(it.groupId)
+                        println("O grupo público ${it.groupId} possui ${members.size} membros!")
+                        //Verifica se existe mais de 1 participante no grupo
+                        if (members.size > 1) {
+                            //Define um novo manager
+                            val newManager = gpRepository.getNewManager(userId, it.groupId)
+                            newManager.isManager = true
+                            gpRepository.save(newManager)
+                            println("O usuário é manager de ${isOwnerOfPublic.size} grupos públicos!")
+                            isOwnerOfPublic.forEach {
+                                //altera o owner dos grupos que o user é owner
+                                it.groupOwner = newManager.userId
+                                groupsRepository.save(it)
+                                println("O novo manager do grupo público ${it.id} é o usuário ${newManager.userId}!")
+                            }
+                            println("Removendo o usuário $userId do grupo ${it.groupId}")
+                            gpRepository.deleteById(it.id)
+                            val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
+                            println("As metas do grupo público ${it.groupId} possui ${userGoalsTrans.size} transações!")
+                            if (userGoalsTrans.isNotEmpty()) {
+                                println("Removendo as transações das metas do grupo público ${it.groupId}")
+                                goalsTransRepository.deleteAll(userGoalsTrans)
+                            }
+                            val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                            println("O grupo público ${it.groupId} possui ${userGroupTrans.size} transações!")
+                            if (userGroupTrans.isNotEmpty()) {
+                                println("Removendo as transações do grupo público ${it.groupId}")
+                                gtRepository.deleteAll(userGroupTrans)
+                            }
+
+                        } else {
+                            gpRepository.deleteById(it.id)
+                            val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
+                            println("As metas do grupo público ${it.groupId} possui ${userGoalsTrans.size} transações!")
+                            if (userGoalsTrans.isNotEmpty()) {
+                                println("Removendo as transações das metas do grupo público ${it.groupId}")
+                                goalsTransRepository.deleteAll(userGoalsTrans)
+                            }
+                            val groupGoals = goalsRepository.getGoalsByGroupId(it.groupId)
+                            println("O grupo público ${it.groupId} possui ${groupGoals.size} metas!")
+                            if (groupGoals.isNotEmpty()) {
+                                println("Removendo as metas do grupo público ${it.groupId}")
+                                goalsRepository.deleteAll(groupGoals)
+                            }
+                            val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                            println("O grupo público ${it.groupId} possui ${userGroupTrans.size} transações!")
+                            if (userGroupTrans.isNotEmpty()) {
+                                println("Removendo as transações do grupo público ${it.groupId}")
+                                gtRepository.deleteAll(userGroupTrans)
+                            }
+                            println("Removendo o grupo ${it.groupId}")
+                            groupsRepository.deleteById(it.groupId)
+                        }
+                    } else {
+                        println("O grupo ${it.groupId} é um grupo privado!")
+
+                        val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
+                        println("As metas do grupo privado ${it.groupId} possui ${userGoalsTrans.size} transações!")
+                        if (userGoalsTrans.isNotEmpty()) {
+                            println("Removendo as transações das metas do grupo privado ${it.groupId}")
+                            goalsTransRepository.deleteAll(userGoalsTrans)
+                        }
+
+                        val groupGoals = goalsRepository.getGoalsByGroupId(it.groupId)
+                        println("O grupo privado ${it.groupId} possui ${groupGoals.size} metas!")
+                        if (groupGoals.isNotEmpty()) {
+                            println("Removendo as metas do grupo privado ${it.groupId}")
+                            goalsRepository.deleteAll(groupGoals)
+                        }
+
+                        val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                        println("O grupo privado ${it.groupId} possui ${userGroupTrans.size} transações!")
+                        if (userGroupTrans.isNotEmpty()) {
+                            println("Removendo as transações do grupo privado ${it.groupId}")
+                            gtRepository.deleteAll(userGroupTrans)
+                        }
+
+                        println("Removendo o usuário $userId do grupo ${it.groupId} ")
+                        gpRepository.deleteById(it.id)
+                        println("Removendo o grupo ${it.groupId}")
+                        groupsRepository.deleteById(it.groupId)
+
+                    }
+
+                } else {
+                    println("O usuário não é manager do grupo ${it.groupId}, então, pode ser removido sem problemas!")
+                    println("Removendo o usuário do grupo ${it.groupId}")
+                    gpRepository.deleteById(it.id)
+                    val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
+                    println("As metas do grupo ${it.groupId} possuem ${userGoalsTrans.size} transações!")
+                    if (userGoalsTrans.isNotEmpty()) {
+                        println("Removendo as transações das metas do grupo ${it.groupId}")
+                        goalsTransRepository.deleteAll(userGoalsTrans)
+                    }
+                    val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                    println("O grupo ${it.groupId} possui ${userGroupTrans.size} transações relacionadas as usuário ${userId}!")
+                    if (userGroupTrans.isNotEmpty()) {
+                        println("Removendo as transações do grupo ${it.groupId}")
+                        gtRepository.deleteAll(userGroupTrans)
+                    }
                 }
             }
+            println("O usuário será removido!")
+            usersRepository.deleteById(userId)
+
+            ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+        } catch (err: Exception) {
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-        println("Passei por aqui 6")
-        usersRepository.deleteById(userId)
-        return ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
     }
+
+
 }

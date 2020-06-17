@@ -17,29 +17,56 @@ class GoalsTransactionsController {
     @Autowired
     lateinit var gtRepository: GoalsTransactionsRepository
 
-    @GetMapping("{group_id}")
+    @GetMapping("/groups/{group_id}")
     @ApiOperation(value = "Trás as transações das metas de um grupo")
-    fun getGoalsTransactions(@PathVariable("group_id") groupId : Int) : ResponseEntity<List<GoalsTransactions>> {
+    fun getGroupGoalsTransactions(@PathVariable("group_id") groupId: Int): ResponseEntity<List<GoalsTransactions>> {
         return try {
             val transactions = gtRepository.getAllGoalsTrans(groupId)
-            if(transactions.isNotEmpty()){
+            if (transactions.isNotEmpty()) {
                 ResponseEntity.status(HttpStatus.OK).body(transactions)
             } else {
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             }
-        }catch (err : Exception){
+        } catch (err: Exception) {
             println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+    }
+
+    @GetMapping("{goalId}")
+    @ApiOperation(value = "Trás as transações de uma meta")
+    fun getGoalTransactions(@PathVariable("goalId") goalId: Int): ResponseEntity<List<GoalsTransactions>> {
+        return try {
+            val goalTransactions = gtRepository.getGoalsByGoalId(goalId)
+            if(goalTransactions.isNotEmpty()){
+                ResponseEntity.status(HttpStatus.OK).body(goalTransactions)
+            } else {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            }
+        }catch (err : Exception){
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }
 
     @PostMapping("create")
     @ApiOperation(value = "Cria uma nova transação para uma meta")
-    fun createGoalTransaction(@RequestBody transaction : GoalsTransactions) : ResponseEntity<String>{
+    fun createGoalTransaction(@RequestBody transaction: GoalsTransactions): ResponseEntity<String> {
         return try {
             gtRepository.save(transaction)
             ResponseEntity.status(HttpStatus.CREATED).body("Sucesso!")
-        }catch (err : Exception){
+        } catch (err: Exception) {
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+    }
+
+    @DeleteMapping("remove/{id}")
+    @ApiOperation(value = "Remove uma transação de uma meta")
+    fun removeTransaction(@PathVariable("id") id: Int): ResponseEntity<String> {
+        return try {
+            gtRepository.deleteById(id)
+            ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+        } catch (err: Exception) {
             println(err)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
