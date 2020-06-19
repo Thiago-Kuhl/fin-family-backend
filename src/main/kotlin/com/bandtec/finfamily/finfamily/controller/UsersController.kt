@@ -223,19 +223,26 @@ class UsersController {
                             gpRepository.deleteById(it.id)
                             val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
                             println("As metas do grupo público ${it.groupId} possui ${userGoalsTrans.size} transações!")
-                            if (userGoalsTrans.isNotEmpty()) {
-                                println("Removendo as transações das metas do grupo público ${it.groupId}")
-                                goalsTransRepository.deleteAll(userGoalsTrans)
-                            }
                             val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
                             println("O grupo público ${it.groupId} possui ${userGroupTrans.size} transações!")
                             if (userGroupTrans.isNotEmpty()) {
                                 println("Removendo as transações do grupo público ${it.groupId}")
                                 gtRepository.deleteAll(userGroupTrans)
                             }
-
+                            if (userGoalsTrans.isNotEmpty()) {
+                                println("Removendo as transações das metas do grupo público ${it.groupId}")
+                                goalsTransRepository.deleteAll(userGoalsTrans)
+                            }
                         } else {
                             gpRepository.deleteById(it.id)
+                            val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                            println("O grupo público ${it.groupId} possui ${userGroupTrans.size} transações!")
+                            if (userGroupTrans.isNotEmpty()) {
+                                println("Removendo as transações do grupo público ${it.groupId}")
+                                gtRepository.deleteAll(userGroupTrans)
+                            }
+                            println("Removendo o grupo ${it.groupId}")
+                            groupsRepository.deleteById(it.groupId)
                             val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
                             println("As metas do grupo público ${it.groupId} possui ${userGoalsTrans.size} transações!")
                             if (userGoalsTrans.isNotEmpty()) {
@@ -248,17 +255,16 @@ class UsersController {
                                 println("Removendo as metas do grupo público ${it.groupId}")
                                 goalsRepository.deleteAll(groupGoals)
                             }
-                            val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
-                            println("O grupo público ${it.groupId} possui ${userGroupTrans.size} transações!")
-                            if (userGroupTrans.isNotEmpty()) {
-                                println("Removendo as transações do grupo público ${it.groupId}")
-                                gtRepository.deleteAll(userGroupTrans)
-                            }
-                            println("Removendo o grupo ${it.groupId}")
-                            groupsRepository.deleteById(it.groupId)
                         }
                     } else {
                         println("O grupo ${it.groupId} é um grupo privado!")
+
+                        val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
+                        println("O grupo privado ${it.groupId} possui ${userGroupTrans.size} transações!")
+                        if (userGroupTrans.isNotEmpty()) {
+                            println("Removendo as transações do grupo privado ${it.groupId}")
+                            gtRepository.deleteAll(userGroupTrans)
+                        }
 
                         val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
                         println("As metas do grupo privado ${it.groupId} possui ${userGoalsTrans.size} transações!")
@@ -273,36 +279,26 @@ class UsersController {
                             println("Removendo as metas do grupo privado ${it.groupId}")
                             goalsRepository.deleteAll(groupGoals)
                         }
-
-                        val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
-                        println("O grupo privado ${it.groupId} possui ${userGroupTrans.size} transações!")
-                        if (userGroupTrans.isNotEmpty()) {
-                            println("Removendo as transações do grupo privado ${it.groupId}")
-                            gtRepository.deleteAll(userGroupTrans)
-                        }
-
                         println("Removendo o usuário $userId do grupo ${it.groupId} ")
                         gpRepository.deleteById(it.id)
                         println("Removendo o grupo ${it.groupId}")
                         groupsRepository.deleteById(it.groupId)
-
                     }
-
                 } else {
                     println("O usuário não é manager do grupo ${it.groupId}, então, pode ser removido sem problemas!")
                     println("Removendo o usuário do grupo ${it.groupId}")
                     gpRepository.deleteById(it.id)
-                    val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
-                    println("As metas do grupo ${it.groupId} possuem ${userGoalsTrans.size} transações!")
-                    if (userGoalsTrans.isNotEmpty()) {
-                        println("Removendo as transações das metas do grupo ${it.groupId}")
-                        goalsTransRepository.deleteAll(userGoalsTrans)
-                    }
                     val userGroupTrans = gtRepository.getUserGroupTrans(userId, it.groupId)
                     println("O grupo ${it.groupId} possui ${userGroupTrans.size} transações relacionadas as usuário ${userId}!")
                     if (userGroupTrans.isNotEmpty()) {
                         println("Removendo as transações do grupo ${it.groupId}")
                         gtRepository.deleteAll(userGroupTrans)
+                    }
+                    val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, it.groupId)
+                    println("As metas do grupo ${it.groupId} possuem ${userGoalsTrans.size} transações!")
+                    if (userGoalsTrans.isNotEmpty()) {
+                        println("Removendo as transações das metas do grupo ${it.groupId}")
+                        goalsTransRepository.deleteAll(userGoalsTrans)
                     }
                 }
             }

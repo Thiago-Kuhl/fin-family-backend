@@ -1,17 +1,22 @@
 package com.bandtec.finfamily.finfamily.repository
 
 import com.bandtec.finfamily.finfamily.model.GroupsTransactions
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 
-interface GroupsTransactionRepository : CrudRepository<GroupsTransactions, Int> {
+interface GroupsTransactionRepository : JpaRepository<GroupsTransactions, Int> {
 
     @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId", nativeQuery = true)
     fun getGroupTransactions(groupId: Int): List<GroupsTransactions>
 
     @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId AND " +
-            "transaction_type_id = :type", nativeQuery = true)
-    fun getGroupEntries(groupId: Int, type: Int): List<GroupsTransactions>
+            "transaction_type_id = 1 AND pay_date like :month", nativeQuery = true)
+    fun getGroupEntries(groupId: Int, month: String): List<GroupsTransactions>
+
+    @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId AND " +
+            "transaction_type_id in (2,3) AND pay_date like :month", nativeQuery = true)
+    fun getGroupExpenses(groupId: Int, month : String): List<GroupsTransactions>
 
     @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId AND " +
             "transaction_type_id = :type AND user_id = :userId", nativeQuery = true)

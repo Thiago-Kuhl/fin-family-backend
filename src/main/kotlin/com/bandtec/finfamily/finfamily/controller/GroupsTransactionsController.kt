@@ -19,38 +19,40 @@ class GroupsTransactionsController {
     @Autowired
     lateinit var gTRepository: GroupsTransactionRepository
 
-    val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-    val currentDate = sdf.format(Date())!!
+    val sdtf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+    val currentDateTime = sdtf.format(Date())!!
+    val sdf = SimpleDateFormat("dd/MM/yyyy")
+    val currentDate = sdf.format(Date())
 
-    @GetMapping("{groupId}/entries")
+    @GetMapping("{groupId}/entries/{month}")
     @ApiOperation(value = "Trás as entradas de um grupo")
-    fun getGroupEntries(@PathVariable("groupId") groupId: Int): ResponseEntity<List<GroupsTransactions>> {
+    fun getGroupEntries(@PathVariable("groupId") groupId: Int, @PathVariable month : String): ResponseEntity<List<GroupsTransactions>> {
 
         return try {
-            val transactions = gTRepository.getGroupEntries(groupId, 1)
+            val transactions = gTRepository.getGroupEntries(groupId, "%/$month/%")
             if (transactions.isNotEmpty()) {
-                ResponseEntity.ok().body(transactions)
+                ResponseEntity.status(HttpStatus.OK).body(transactions)
             } else {
-                ResponseEntity.noContent().build()
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             }
         } catch (err: Exception) {
-            ResponseEntity.badRequest().build()
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }
 
-    @GetMapping("{groupId}/expenses")
-    @ApiOperation(value = "Trás as entradas de um grupo")
-    fun getGroupExpenses(@PathVariable("groupId") groupId: Int): ResponseEntity<List<GroupsTransactions>> {
+    @GetMapping("{groupId}/expenses/{month}")
+    @ApiOperation(value = "Trás as saídas de um grupo")
+    fun getGroupExpenses(@PathVariable("groupId") groupId: Int, @PathVariable("month") month : String): ResponseEntity<List<GroupsTransactions>> {
 
         return try {
-            val transactions = gTRepository.getGroupEntries(groupId, 2)
+            val transactions = gTRepository.getGroupExpenses(groupId, "%/$month/%")
             if (transactions.isNotEmpty()) {
-                ResponseEntity.ok().body(transactions)
+                ResponseEntity.status(HttpStatus.OK).body(transactions)
             } else {
-                ResponseEntity.noContent().build()
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             }
         } catch (err: Exception) {
-            ResponseEntity.badRequest().build()
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }
 
@@ -97,7 +99,7 @@ class GroupsTransactionsController {
 //            transaction.idExpenseCategory = null
 //        }
         return try {
-            transaction.createdAt = currentDate
+            transaction.createdAt = currentDateTime
             gTRepository.save(transaction)
             ResponseEntity.status(HttpStatus.CREATED).body("Sucesso!")
         } catch (err: Exception) {
@@ -133,7 +135,7 @@ class GroupsTransactionsController {
         }
 
         return try {
-            baseTrans.updatedAt = currentDate
+            baseTrans.updatedAt = currentDateTime
             gTRepository.save(baseTrans)
             ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
         }catch (err : Exception){
