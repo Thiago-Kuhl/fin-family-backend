@@ -19,18 +19,15 @@ interface GroupsTransactionRepository : JpaRepository<GroupsTransactions, Int> {
     fun getGroupExpenses(groupId: Int, month : String): List<GroupsTransactions>
 
     @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId AND " +
-            "transaction_type_id = :type AND user_id = :userId", nativeQuery = true)
-    fun getUserEntries(groupId: Int, type: Int, userId: Int): List<GroupsTransactions>
-
-    @Query(value = "SELECT * FROM groups_transaction WHERE user_id = :userId AND group_id = :groupId", nativeQuery = true)
-    fun getUserTransactions(userId: Int, groupId: Int): List<GroupsTransactions>
-
-    @Query(value = "SELECT * FROM groups_transaction WHERE user_id = :userId", nativeQuery = true)
-    fun getAllUserTransactions(userId: Int): List<GroupsTransactions>
+            "transaction_type_id = :type AND user_id = :userId AND pay_date like :month", nativeQuery = true)
+    fun getUserEntries(groupId: Int, type: Int, userId: Int, month : String): List<GroupsTransactions>
 
     @Query(value = "SELECT * FROM groups_transaction WHERE id = :transId", nativeQuery = true)
     fun findTrans(transId: Int): GroupsTransactions
 
     @Query(value = "SELECT * FROM groups_transaction WHERE group_id = :groupId AND user_id = :userId", nativeQuery = true)
     fun getUserGroupTrans(userId: Int, groupId: Int) : List<GroupsTransactions>
+
+    @Query(value = "SELECT * FROM groups_transaction WHERE goal_id = :goalId", nativeQuery = true)
+    fun getTransByGoal(goalId : Int) : List<GroupsTransactions>
 }

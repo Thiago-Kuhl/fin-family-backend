@@ -24,7 +24,7 @@ interface GroupsRepository : CrudRepository<Groups, Int> {
     fun verifyGroupExternalId(groupExternalId: String): Int
 
     @Query(value = "select * from groups where id = :id", nativeQuery = true)
-    fun getUserGroupIds(id: Int): List<Groups>
+    fun getUserGroupIds(id: Int): Groups
 
     @Query(value = "select * from groups where group_owner = :groupOwner AND group_type = 2", nativeQuery = true)
     fun getUsersPublicGroupsOwner(groupOwner: Int): List<Groups>
@@ -35,5 +35,7 @@ interface GroupsRepository : CrudRepository<Groups, Int> {
     @Query(value = "SELECT IIF(EXISTS(SELECT * FROM groups WHERE id = :groupId AND group_type = 2), " +
             "CAST(1 AS BIT), CAST(0 AS BIT))", nativeQuery = true)
     fun isPublicGroup(groupId: Int): Boolean
+
+
 
 }

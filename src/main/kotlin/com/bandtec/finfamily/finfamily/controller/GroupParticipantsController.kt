@@ -35,7 +35,6 @@ class GroupParticipantsController {
     lateinit var goalsRepository: GoalsRepository
 
 
-
     @GetMapping("/members/{externalId}")
     @ApiOperation(value = "Trás os membros de um grupo")
     fun getGroupMembers(@PathVariable("externalId") extId: String): ResponseEntity<List<Users>> {
@@ -73,14 +72,79 @@ class GroupParticipantsController {
     //TODO Arrumar a API 'removeMember':
     // - Replicar a lógica da remoção de usuário para remover o usuário do grupo
 
-//    @DeleteMapping("remove/members/{userId}/{groupId}")
-//    @ApiOperation(value = "Remove um membro de um grupo")
-//    fun removeMember(@PathVariable("userId") userId: Int,
-//                     @PathVariable("groupId") groupId: Int): ResponseEntity<String> {
-//
-//        val userGroupsTrans = gtRepository.getUserGroupTrans(userId, groupId)
-//        val userGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, groupId)
-//
-//    }
+    @DeleteMapping("remove/members/{userId}/{groupId}")
+    @ApiOperation(value = "Remove um membro de um grupo")
+    fun removeMember(@PathVariable("userId") userId: Int,
+                     @PathVariable("groupId") groupId: Int): ResponseEntity<String> {
+
+        val isOwnerOfGroup = gpRepository.isManager(userId, groupId)
+        val groupInfo = groupsRepository.getUserGroupIds(groupId)
+        return if (!isOwnerOfGroup) {
+            return try {
+                val groupTrans = gtRepository.getUserGroupTrans(userId, groupId)
+                if (groupTrans.isNotEmpty()) {
+                    gtRepository.deleteAll(groupTrans)
+                }
+                val groupGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, groupId)
+                if (groupGoalsTrans.isNotEmpty()) {
+                    goalsTransRepository.deleteAll(groupGoalsTrans)
+                }
+                val groupMemberId = gpRepository.getGroupMemberId(userId, groupId)
+                if (groupMemberId.isNotEmpty()) {
+                    gpRepository.deleteAll(groupMemberId)
+                }
+                ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+            } catch (err: Exception) {
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
+        } else {
+            val groupMembers = gpRepository.getGroupAllMembers(groupId)
+            if (groupMembers.size > 1){
+                return try{
+                    val newManager = gpRepository.getNewManager(userId, groupId)
+                    newManager.isManager = true
+                    gpRepository.save(newManager)
+                    groupInfo.groupOwner = newManager.userId
+                    groupsRepository.save(groupInfo)
+                    val groupTrans = gtRepository.getUserGroupTrans(userId, groupId)
+                    if (groupTrans.isNotEmpty()) {
+                        gtRepository.deleteAll(groupTrans)
+                    }
+                    val groupGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, groupId)
+                    if (groupGoalsTrans.isNotEmpty()) {
+                        goalsTransRepository.deleteAll(groupGoalsTrans)
+                    }
+                    val groupMemberId = gpRepository.getGroupMemberId(userId, groupId)
+                    if (groupMemberId.isNotEmpty()) {
+                        gpRepository.deleteAll(groupMemberId)
+                    }
+                    ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+                }catch (err : Exception){
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                }
+            }else {
+                val groupTrans = gtRepository.getUserGroupTrans(userId, groupId)
+                if (groupTrans.isNotEmpty()) {
+                    gtRepository.deleteAll(groupTrans)
+                }
+                val groupGoalsTrans = goalsTransRepository.getUserGroupTransactions(userId, groupId)
+                if (groupGoalsTrans.isNotEmpty()) {
+                    goalsTransRepository.deleteAll(groupGoalsTrans)
+                }
+                val groupMemberId = gpRepository.getGroupMemberId(userId, groupId)
+                if (groupMemberId.isNotEmpty()) {
+                    gpRepository.deleteAll(groupMemberId)
+                }
+                val goals = goalsRepository.getGoalsByGroupId(groupId)
+                if (goals.isNotEmpty()){
+                    goalsRepository.deleteAll(goals)
+                }
+                groupsRepository.deleteById(groupId)
+
+                ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+            }
+        }
+
+    }
 
 }

@@ -26,7 +26,7 @@ class GroupsTransactionsController {
 
     @GetMapping("{groupId}/entries/{month}")
     @ApiOperation(value = "Trás as entradas de um grupo")
-    fun getGroupEntries(@PathVariable("groupId") groupId: Int, @PathVariable month : String): ResponseEntity<List<GroupsTransactions>> {
+    fun getGroupEntries(@PathVariable("groupId") groupId: Int, @PathVariable month: String): ResponseEntity<List<GroupsTransactions>> {
 
         return try {
             val transactions = gTRepository.getGroupEntries(groupId, "%/$month/%")
@@ -42,7 +42,7 @@ class GroupsTransactionsController {
 
     @GetMapping("{groupId}/expenses/{month}")
     @ApiOperation(value = "Trás as saídas de um grupo")
-    fun getGroupExpenses(@PathVariable("groupId") groupId: Int, @PathVariable("month") month : String): ResponseEntity<List<GroupsTransactions>> {
+    fun getGroupExpenses(@PathVariable("groupId") groupId: Int, @PathVariable("month") month: String): ResponseEntity<List<GroupsTransactions>> {
 
         return try {
             val transactions = gTRepository.getGroupExpenses(groupId, "%/$month/%")
@@ -56,12 +56,13 @@ class GroupsTransactionsController {
         }
     }
 
-    @GetMapping("{groupId}/{userId}/entries")
+    @GetMapping("{groupId}/{userId}/entries/{month}")
     @ApiOperation(value = "Trás as entradas de um grupo")
-    fun getUserEntries(@PathVariable("groupId") groupId: Int, @PathVariable("userId") userId: Int): ResponseEntity<List<GroupsTransactions>> {
+    fun getUserEntries(@PathVariable("groupId") groupId: Int, @PathVariable("userId") userId: Int,
+       @PathVariable("month") month: String): ResponseEntity<List<GroupsTransactions>> {
 
         return try {
-            val transactions = gTRepository.getUserEntries(groupId, 1, userId)
+            val transactions = gTRepository.getUserEntries(groupId, 1, userId, "%/$month/%")
             if (transactions.isNotEmpty()) {
                 ResponseEntity.ok().body(transactions)
             } else {
@@ -72,12 +73,13 @@ class GroupsTransactionsController {
         }
     }
 
-    @GetMapping("{groupId}/{userId}/entries/total")
+    @GetMapping("{groupId}/{userId}/entries/total/{month}")
     @ApiOperation(value = "Trás o total de entradas de um usuário")
-    fun getUserEntriesTotal(@PathVariable("groupId") groupId: Int, @PathVariable("userId") userId: Int): ResponseEntity<Float> {
+    fun getUserEntriesTotal(@PathVariable("groupId") groupId: Int,
+        @PathVariable("userId") userId: Int, @PathVariable("month") month : String): ResponseEntity<Float> {
 
         return try {
-            val transactions = gTRepository.getUserEntries(groupId, 1, userId)
+            val transactions = gTRepository.getUserEntries(groupId, 1, userId, "%/$month/%")
             if (transactions.isNotEmpty()) {
                 var total = 0f
                 transactions.forEach {
@@ -121,16 +123,16 @@ class GroupsTransactionsController {
     fun alterTransactions(@PathVariable("id") transId: Int, @RequestBody transaction: GroupsTransactions): ResponseEntity<String> {
         val baseTrans = gTRepository.findTrans(transId)
 
-        if(baseTrans.name != transaction.name){
+        if (baseTrans.name != transaction.name) {
             baseTrans.name = transaction.name
         }
-        if(baseTrans.value != transaction.value){
-            baseTrans.value  = transaction.value
+        if (baseTrans.value != transaction.value) {
+            baseTrans.value = transaction.value
         }
-        if(baseTrans.idExpenseCategory != transaction.idExpenseCategory) {
+        if (baseTrans.idExpenseCategory != transaction.idExpenseCategory) {
             baseTrans.idExpenseCategory = transaction.idExpenseCategory
         }
-        if(baseTrans.idReceipeCategory != transaction.idReceipeCategory){
+        if (baseTrans.idReceipeCategory != transaction.idReceipeCategory) {
             baseTrans.idReceipeCategory = transaction.idReceipeCategory
         }
 
@@ -138,7 +140,7 @@ class GroupsTransactionsController {
             baseTrans.updatedAt = currentDateTime
             gTRepository.save(baseTrans)
             ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
-        }catch (err : Exception){
+        } catch (err: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
 

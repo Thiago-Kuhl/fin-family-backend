@@ -3,6 +3,7 @@ package com.bandtec.finfamily.finfamily.controller
 import com.bandtec.finfamily.finfamily.model.Goals
 import com.bandtec.finfamily.finfamily.repository.GoalsRepository
 import com.bandtec.finfamily.finfamily.repository.GoalsTransactionsRepository
+import com.bandtec.finfamily.finfamily.repository.GroupsTransactionRepository
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +21,9 @@ class GoalsController {
 
     @Autowired
     lateinit var gtRepository: GoalsTransactionsRepository
+
+    @Autowired
+    lateinit var groupTransRepository: GroupsTransactionRepository
 
     @GetMapping("{group_id}")
     @ApiOperation(value = "Trás as metas de um grupo")
@@ -54,11 +58,18 @@ class GoalsController {
     fun removeGoals(@PathVariable("goalId") goalId : Int) : ResponseEntity<String>{
         return try{
             val transactions = gtRepository.getGoalsByGoalId(goalId)
+            val groupGoalTrans = groupTransRepository.getTransByGoal(goalId)
             if (transactions.isNotEmpty()){
                 gtRepository.deleteAll(transactions)
+                if (groupGoalTrans.isNotEmpty()){
+                    groupTransRepository.deleteAll(groupGoalTrans)
+                }
                 goalsRepository.deleteById(goalId)
                 ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
             } else {
+                if (groupGoalTrans.isNotEmpty()){
+                    groupTransRepository.deleteAll(groupGoalTrans)
+                }
                 goalsRepository.deleteById(goalId)
                 ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
             }

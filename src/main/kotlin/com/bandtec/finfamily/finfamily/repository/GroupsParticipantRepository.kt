@@ -13,7 +13,7 @@ interface GroupsParticipantRepository: CrudRepository<GroupParticipants, Int> {
 
     @Query(value = "select * from group_participants where user_id = :userId and group_id = :groupId",
             nativeQuery = true)
-    fun getGroupMember(userId: Int, groupId : Int) : List<GroupParticipants>
+    fun getGroupMemberId(userId: Int, groupId : Int) : List<GroupParticipants>
 
     @Query(value = "select * from group_participants where user_id = :userId", nativeQuery = true)
     fun getUsersGroups(userId: Int) : List<GroupParticipants>
