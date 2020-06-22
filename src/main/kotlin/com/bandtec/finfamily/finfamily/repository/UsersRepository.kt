@@ -15,6 +15,9 @@ interface UsersRepository : CrudRepository <Users, Int>{
     @Query(value = "SELECT u.* FROM users u WHERE u.id = :userId", nativeQuery = true)
     fun getUserById(userId : Int): Users
 
+    @Query(value = "SELECT nickname FROM users WHERE id = :userId", nativeQuery = true)
+    fun getUserName(userId: Int) : String
+
     @Query(value = "SELECT u.* FROM users u WHERE u.email = :email", nativeQuery = true)
     fun loginVerify(email : String?): Users?
 
@@ -23,6 +26,7 @@ interface UsersRepository : CrudRepository <Users, Int>{
 
     @Query(value = "SELECT u.password FROM users u WHERE u.email = :email", nativeQuery = true)
     fun getPassword(email: String?): String?
+
 
     @Query(value = "delete from users where cpf = :cpf AND email = :email", nativeQuery = true)
     fun removeUser(@Param("cpf") cpf: String?, @Param("email") email: String?)

@@ -19,7 +19,7 @@ class Groups(
         val groupType : Int = 0,
         @ApiModelProperty(required = true, hidden = false)
         @Column(name = "group_owner")
-        val groupOwner : Int = 0,
+        var groupOwner : Int = 0,
         @Column(name = "group_external_id")
         @ApiModelProperty(required = false, hidden = true)
         var externalGroupId : String =  ""

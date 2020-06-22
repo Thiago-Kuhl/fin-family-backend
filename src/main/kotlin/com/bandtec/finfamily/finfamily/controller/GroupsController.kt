@@ -1,10 +1,9 @@
 package com.bandtec.finfamily.finfamily.controller
 
+import com.bandtec.finfamily.finfamily.model.GoalsTransactions
 import com.bandtec.finfamily.finfamily.model.GroupParticipants
 import com.bandtec.finfamily.finfamily.model.Groups
-import com.bandtec.finfamily.finfamily.repository.GroupsParticipantRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsRepository
-import com.bandtec.finfamily.finfamily.repository.GroupsTransactionRepository
+import com.bandtec.finfamily.finfamily.repository.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -13,7 +12,7 @@ import com.bandtec.finfamily.finfamily.utils.groupIdGenerator
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/group")
+@RequestMapping("/api/v1/groups")
 class GroupsController {
 
     @Autowired
@@ -24,6 +23,12 @@ class GroupsController {
 
     @Autowired
     lateinit var groupsTransactionRepository: GroupsTransactionRepository
+
+    @Autowired
+    lateinit var ggRepository : GoalsRepository
+
+    @Autowired
+    lateinit var ggtRepository: GoalsTransactionsRepository
 
     @PostMapping("create")
     fun createGroup(@RequestBody group: Groups): ResponseEntity<Optional<Groups>> {
@@ -61,36 +66,36 @@ class GroupsController {
 
     }
 
-    @PostMapping("remove/{groupId}/{externalId}")
+    @DeleteMapping("remove/{groupId}/{externalId}")
     fun removePublicGroup(@PathVariable("groupId") groupId: Int,
-                    @PathVariable("externalId") external_id: String): ResponseEntity<Groups> {
+                    @PathVariable("externalId") external_id: String): ResponseEntity<String> {
         val members = groupsParticipantRepository.getGroupAllMembers(groupId)
         val transactions = groupsTransactionRepository.getGroupTransactions(groupId)
-
-        try {
+        val groupGoals = ggRepository.getGoalsByGroupId(groupId)
+        val groupGoalsTrans = ggtRepository.getAllGoalsTrans(groupId)
+        return try {
             if(transactions.isNotEmpty()){
                 groupsTransactionRepository.deleteAll(transactions)
             }
-        } catch (err: Exception) {
-            println(err)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
-        try {
-                groupsParticipantRepository.deleteAll(members)
-        } catch (err: Exception) {
-            groupsTransactionRepository.saveAll(transactions)
-            println(err)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
-        try {
-            groupsRepository.deleteById(groupId)
-        } catch (err: Exception) {
-            groupsParticipantRepository.saveAll(members)
-            groupsTransactionRepository.saveAll(transactions)
-            println(err)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
 
-        return ResponseEntity.status(HttpStatus.OK).build()
+            if (groupGoalsTrans.isNotEmpty()){
+                ggtRepository.deleteAll(groupGoalsTrans)
+            }
+
+            if(groupGoals.isNotEmpty()){
+                ggRepository.deleteAll(groupGoals)
+            }
+
+            if (members.isNotEmpty()){
+                groupsParticipantRepository.deleteAll(members)
+            }
+
+            groupsRepository.deleteById(groupId)
+            ResponseEntity.status(HttpStatus.OK).body("Sucesso!")
+
+        } catch (err: Exception) {
+            println(err)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
     }
 }

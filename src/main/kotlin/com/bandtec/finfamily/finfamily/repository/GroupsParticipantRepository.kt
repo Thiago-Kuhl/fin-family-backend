@@ -13,7 +13,13 @@ interface GroupsParticipantRepository: CrudRepository<GroupParticipants, Int> {
 
     @Query(value = "select * from group_participants where user_id = :userId and group_id = :groupId",
             nativeQuery = true)
-    fun getGroupMember(userId: Int, groupId : Int) : List<GroupParticipants>
+    fun getGroupMemberId(userId: Int, groupId : Int) : List<GroupParticipants>
+
+    @Query(value = "select * from group_participants where user_id = :userId", nativeQuery = true)
+    fun getUsersGroups(userId: Int) : List<GroupParticipants>
+
+    @Query(value = "select user_id from group_participants where group_id = :groupId", nativeQuery = true)
+    fun getGroupMembers(groupId: Int) : List<Int>
 
     @Query(value = "select COUNT(user_id) from group_participants where user_id = :userId AND group_id = :groupId",
             nativeQuery = true)
@@ -27,6 +33,9 @@ interface GroupsParticipantRepository: CrudRepository<GroupParticipants, Int> {
     @Query(value = "select COUNT(*) from group_participants where group_id = :groupId AND is_manager = 1",
             nativeQuery = true)
     fun getAllManagers(groupId: Int) : Int
+
+    @Query(value = "select * from group_participants where group_id = :groupId", nativeQuery = true)
+    fun getAllParticipants(groupId: Int) : List<GroupParticipants>
 
     @Query(value = "select top 1 gp.* from group_participants gp join groups g on gp.group_id = g.id where g.id = :groupId" +
             " and g.group_type = 2 and gp.user_id != :userId order by id asc",
